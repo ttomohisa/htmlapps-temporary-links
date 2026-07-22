@@ -18,7 +18,7 @@ Open one HTML file in a modern browser, paste a URL or Windows file path, and se
 ## Try it online
 
 Open the hosted app:  
-[[Open Temporary Links](https://ttomohisa.github.io/ttomohisa/htmlapps-temporary-links/temporary-links.html)](https://ttomohisa.github.io/ttomohisa/htmlapps-temporary-links/temporary-links.html)
+[https://ttomohisa.github.io/htmlapps-temporary-links/temporary-links.html)](https://ttomohisa.github.io/htmlapps-temporary-links/temporary-links.html)
 
 Your links and file paths stay in your browser. Nothing is uploaded.
 
