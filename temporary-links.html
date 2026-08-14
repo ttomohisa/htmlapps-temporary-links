@@ -1,90 +1,1074 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Temporary Links</title>
-<style>
-:root{color-scheme:dark;--bg:#111318;--panel:#1a1e27;--panel2:#222836;--line:#343c4d;--text:#edf1f8;--muted:#9ba7bb;--accent:#8b7cff;--green:#4ade80;--danger:#fb7185;--warn:#fbbf24}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 8% 0%,#292551 0,transparent 31%),radial-gradient(circle at 95% 12%,#153a4b 0,transparent 28%),linear-gradient(135deg,#10131a,#161c29);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}.app{max-width:920px;margin:auto;padding:28px 18px 50px}header{display:flex;gap:18px;justify-content:space-between;align-items:flex-start;margin-bottom:22px}h1{margin:0 0 4px;font-size:clamp(1.55rem,4vw,2.35rem);letter-spacing:-.04em}h1 span{color:var(--accent)}.sub{margin:0;color:var(--muted)}button,input,textarea,select{font:inherit}button{padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--text);cursor:pointer;font-weight:650}button:hover{border-color:var(--accent)}button.primary{background:linear-gradient(135deg,var(--accent),#5c8df6);border-color:transparent;color:#fff;box-shadow:0 7px 18px #5e73ec55}button.danger{color:#fecdd3}.grid{display:grid;grid-template-columns:1.15fr .85fr;gap:16px}.panel{padding:16px;border:1px solid color-mix(in srgb,var(--line) 90%,#fff 10%);border-radius:16px;background:color-mix(in srgb,var(--panel) 94%,transparent);box-shadow:0 16px 44px #0004;backdrop-filter:blur(10px)}.panel h2{margin:0 0 12px;font-size:1rem}.add{display:grid;grid-template-columns:1fr auto;gap:9px}.add textarea{grid-column:1/-1;min-height:54px;resize:vertical}.field{width:100%;padding:10px;transition:border-color .16s,box-shadow .16s;border:1px solid var(--line);border-radius:9px;background:#10141d;color:var(--text)}.field:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #8b7cff2b}.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.spacer{flex:1}.count{padding:3px 8px;border:1px solid var(--line);border-radius:99px;background:#0f1420;color:var(--muted);font-size:.82rem}.list{display:grid;gap:9px;margin-top:13px}.card{padding:12px;border:1px solid var(--line);border-radius:11px;background:#121722}.card.done{opacity:.52}.title{display:block;overflow-wrap:anywhere;color:var(--text);text-decoration:none;font-weight:700}.local-title{display:block;overflow:hidden;color:var(--text);font-weight:700;text-overflow:ellipsis;white-space:nowrap}.domain{margin:4px 0 7px;color:var(--accent);font-size:.8rem}.local-path{overflow-wrap:anywhere;margin:4px 0 7px;color:var(--accent);font: .8rem ui-monospace,SFMono-Regular,Consolas,monospace}.note{overflow-wrap:anywhere;color:#c7d0df;font-size:.9rem;white-space:pre-wrap}.meta{color:var(--muted);font-size:.77rem}.actions{display:flex;gap:6px;margin-top:10px}.actions button{padding:6px 8px;font-size:.8rem}.empty{padding:25px 6px;color:var(--muted);text-align:center}.hint{margin:11px 0 0;color:var(--muted);font-size:.8rem;line-height:1.55}.shortcuts kbd{padding:1px 5px;border:1px solid var(--line);border-radius:4px;background:#0d1119;color:#dce5f5}.notice{min-height:1.25em;margin:8px 0 0;color:var(--green);font-size:.86rem}.input-status{min-height:1.25em;margin:7px 0 -2px;color:var(--muted);font-size:.78rem}.input-status.ok{color:var(--green)}.toolbar{display:flex;align-items:center;gap:7px;margin:15px 0 -2px}.toolbar button{padding:5px 8px;font-size:.78rem}.toolbar button.active{border-color:var(--accent);color:var(--accent)}.card.expired{opacity:.64}.card .actions{align-items:center}.toast-pip{position:fixed;right:12px;bottom:12px;padding:7px 9px;border:1px solid var(--green);border-radius:8px;background:#173425;color:#d9ffe5;font-size:.78rem;box-shadow:0 4px 18px #0008}.pip-open{outline:2px solid var(--green);outline-offset:2px}@media(max-width:720px){header{flex-direction:column}.grid{grid-template-columns:1fr}.app{padding-top:18px}}body.pip{min-height:auto;background:var(--bg)}body.pip .app{max-width:none;padding:12px}body.pip header,body.pip .add-panel,body.pip .manage-panel{display:none}.pip-top{display:none}body.pip .pip-top{display:flex;align-items:center;gap:8px;margin-bottom:10px}.pip-card{display:flex;align-items:center;gap:7px;min-height:32px;padding:6px 8px}.pip-card .title,.pip-card .local-title{flex:1;min-width:0;overflow:hidden;font-size:.86rem;white-space:nowrap;text-overflow:ellipsis}.pip-card .actions{flex-wrap:nowrap;gap:4px;margin:0}.pip-card .actions button{padding:2px 6px;font-size:.78rem}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f5f5f2">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Temporary Links</title>
+  <meta name="description" content="作業中だけ必要なWebリンクやローカルパスを、ブラウザー内に一時保存する単一HTMLツール。">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2316624f'/%3E%3Cpath d='M26 20h-5a9 9 0 0 0 0 18h8a9 9 0 0 0 6.4-2.7' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M38 44h5a9 9 0 0 0 0-18h-8a9 9 0 0 0-6.4 2.7M24 32h16' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f5f2;
+      --surface: #ffffff;
+      --surface-muted: #f0f0ed;
+      --surface-hover: #e9e9e5;
+      --text: #20211f;
+      --muted: #666963;
+      --line: #dadbd6;
+      --line-strong: #bfc1ba;
+      --accent: #16624f;
+      --accent-hover: #0e503f;
+      --accent-soft: #e1f0ea;
+      --danger: #b3261e;
+      --danger-soft: #fce8e6;
+      --warn: #8a5b00;
+      --warn-soft: #fff5d6;
+      --focus: #4d8bc7;
+      --shadow-sm: 0 1px 2px rgba(25, 28, 24, .08), 0 1px 6px rgba(25, 28, 24, .04);
+      --shadow-md: 0 12px 34px rgba(25, 28, 24, .10);
+      --radius: 12px;
+      --header-height: 66px;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--bg); scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans JP", "Yu Gothic UI", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { color: inherit; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible, a:focus-visible {
+      outline: 3px solid color-mix(in srgb, var(--focus) 55%, transparent);
+      outline-offset: 2px;
+    }
+    .app-header {
+      position: sticky;
+      z-index: 30;
+      top: 0;
+      min-height: var(--header-height);
+      border-bottom: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+      background: color-mix(in srgb, var(--bg) 92%, transparent);
+      backdrop-filter: blur(16px) saturate(1.2);
+    }
+    .header-inner {
+      width: min(1180px, 100%);
+      min-height: var(--header-height);
+      margin: 0 auto;
+      padding: 10px clamp(14px, 2.8vw, 30px);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      border-radius: 11px;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: var(--shadow-sm);
+    }
+    .brand-mark svg { width: 21px; height: 21px; display: block; }
+    .brand-copy { min-width: 0; }
+    .brand-name { margin: 0; font-size: 17px; line-height: 1.2; letter-spacing: .01em; white-space: nowrap; }
+    .version-badge {
+      display: inline-flex;
+      align-items: center;
+      margin-left: 7px;
+      padding: 1px 6px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: var(--surface-muted);
+      font-size: 10px;
+      font-weight: 650;
+      vertical-align: 2px;
+    }
+    .brand-meta { margin: 2px 0 0; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-actions { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+    .language-button {
+      min-width: 0;
+      padding: 5px 1px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 750;
+      letter-spacing: .02em;
+      cursor: pointer;
+    }
+    .language-button:hover { color: var(--text); }
+    .header-icon-button {
+      display: inline-grid;
+      place-items: center;
+      padding: 5px 1px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    .header-icon-button:hover { color: var(--text); }
+    .header-icon-button svg { width: 20px; height: 20px; display: block; }
+    .main { width: min(1180px, 100%); margin: 0 auto; padding: 22px clamp(14px, 2.8vw, 30px) 54px; }
+    .page-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 0 2px 18px; }
+    .page-intro h1 { margin: 0; font-size: clamp(21px, 3vw, 26px); line-height: 1.3; letter-spacing: -.025em; }
+    .page-intro p { margin: 5px 0 0; max-width: 760px; color: var(--muted); font-size: 13px; }
+    .local-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      flex: 0 0 auto;
+      margin-top: 3px;
+      padding: 7px 10px;
+      border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .local-badge svg { width: 15px; height: 15px; display: block; }
+    .workspace {
+      margin: 0 0 18px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+    .workspace-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 15px; }
+    .workspace h2 { margin: 0; font-size: 19px; letter-spacing: -.02em; }
+    .workspace-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .support-chip { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .support-dot { width: 7px; height: 7px; border-radius: 999px; background: var(--line-strong); }
+    .support-chip.ready { color: var(--accent); }
+    .support-chip.ready .support-dot { background: var(--accent); }
+    .field-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+    .url-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; grid-column: 1 / -1; }
+    .field, select {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 11px;
+      background: #fbfbf9;
+      color: var(--text);
+      transition: border-color .16s ease, background .16s ease;
+    }
+    .field:hover, select:hover { border-color: var(--line-strong); }
+    textarea.field { min-height: 74px; resize: vertical; grid-column: 1 / -1; line-height: 1.6; }
+    .retention-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; grid-column: 1 / -1; }
+    .button {
+      min-height: 40px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color .16s ease, background .16s ease, transform .16s ease;
+    }
+    .button:hover { border-color: var(--line-strong); background: var(--surface-hover); }
+    .button:active { transform: translateY(1px); }
+    .button.primary { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .button.primary:hover { border-color: var(--accent-hover); background: var(--accent-hover); }
+    .button.danger { color: var(--danger); }
+    .button.compact { min-height: 34px; padding: 5px 10px; font-size: 12px; }
+    .button:disabled { opacity: .48; cursor: not-allowed; transform: none; }
+    .input-hint { min-height: 19px; margin: 7px 1px 0; color: var(--muted); font-size: 11px; }
+    .input-hint.ok { color: var(--accent); }
+    .input-hint.error { color: var(--danger); }
+    .list-shell { padding-bottom: 16px; }
+    .list-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 13px; }
+    .list-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .stats { display: flex; gap: 7px; flex-wrap: wrap; }
+    .stat { min-width: 70px; padding: 7px 10px; border-radius: 10px; background: var(--surface-muted); text-align: center; }
+    .stat-value { display: block; font-size: 15px; font-weight: 780; line-height: 1.2; }
+    .stat-label { color: var(--muted); font-size: 10px; }
+    .list-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 10px 0 12px;
+      border-top: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+    }
+    .floating-control { display: flex; align-items: center; gap: 9px; flex: 0 0 auto; }
+    .floating-control .button {
+      min-height: 40px;
+      padding-inline: 15px;
+      box-shadow: 0 5px 14px rgba(22,98,79,.12);
+    }
+    .support-chip { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .support-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--line-strong); }
+    .support-chip.ready { color: var(--accent); }
+    .support-chip.ready .support-dot { background: var(--accent); }
+    .filter-cluster { display: flex; align-items: center; gap: 7px; min-width: 0; }
+    .control-label { color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 3px; }
+    .filter-button {
+      min-height: 32px;
+      padding: 5px 10px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 750;
+      cursor: pointer;
+    }
+    .filter-button:hover { background: var(--surface-muted); color: var(--text); }
+    .filter-button.active { border-color: color-mix(in srgb, var(--accent) 24%, var(--line)); background: var(--accent-soft); color: var(--accent); }
+    .controls-spacer { flex: 1 1 auto; min-width: 4px; }
+    .more-tools { position: relative; flex: 0 0 auto; }
+    .more-tools summary { list-style: none; }
+    .more-tools summary::-webkit-details-marker { display: none; }
+    .more-tools[open] > summary { border-color: var(--line-strong); background: var(--surface-hover); }
+    .more-menu {
+      position: absolute;
+      z-index: 20;
+      top: calc(100% + 7px);
+      right: 0;
+      width: 190px;
+      padding: 7px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      box-shadow: var(--shadow-md);
+      display: grid;
+      gap: 5px;
+    }
+    .more-menu .button { width: 100%; min-height: 34px; justify-content: flex-start; text-align: left; font-size: 11px; }
+    .search-wrap { margin: 0 0 12px; }
+    .search-wrap .field { min-height: 40px; background: var(--surface); }
+    .list { display: grid; gap: 10px; }
 
-body.light{color-scheme:light;--bg:#f5f7fb;--panel:#ffffff;--panel2:#eef2f8;--line:#d5dcea;--text:#172033;--muted:#65728a;--accent:#2563eb;--green:#15803d;--danger:#be123c;--warn:#a16207;background:linear-gradient(135deg,#f8fafc,#e9eef8)}
-body.light .field{background:#fff}body.light .card{background:#fff}body.light .count{background:#f5f7fb}body.light .shortcuts kbd{background:#edf2f7}body.light .local-path{color:#2563eb}
-.theme-toggle{min-width:42px;padding:9px 10px}
-.pip-add{display:grid;grid-template-columns:1fr auto;gap:6px;margin:0 0 10px}.pip-add input{min-width:0;padding:8px;font-size:.82rem}.pip-add button{padding:7px 9px;font-size:.8rem}
-.add-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.add-head h2{margin:0}.add-head .badge{color:#c9c1ff;background:#8b7cff20;border:1px solid #8b7cff45;border-radius:99px;padding:3px 8px;font-size:.72rem;font-weight:700}.url-row{display:grid;grid-template-columns:1fr auto;gap:9px}.paste-btn{white-space:nowrap}.add-cta{min-height:43px}.kind-icon{font-size:1rem}.recent-label{font-size:.76rem;color:var(--muted);margin:10px 0 -3px}.keyboard-hint{font-size:.75rem;color:var(--muted)}body.light .add-head .badge{color:#5140b5;background:#e9e6ff}
+    .item-card {
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      transition: border-color .16s ease, transform .16s ease;
+    }
+    .item-card:hover { border-color: var(--line-strong); transform: translateY(-1px); }
+    .item-card.done { opacity: .64; }
+    .item-card.expired { border-color: color-mix(in srgb, var(--warn) 26%, var(--line)); }
+    .item-top { display: flex; align-items: flex-start; gap: 10px; }
+    .item-kind {
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      border-radius: 8px;
+      background: var(--surface-muted);
+      color: var(--accent);
+    }
+    .item-kind svg { width: 16px; height: 16px; }
+    .item-main { min-width: 0; flex: 1; }
+    .item-title { display: inline-block; max-width: 100%; overflow-wrap: anywhere; color: var(--text); font-weight: 750; text-decoration: none; }
+    a.item-title:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+    .item-sub { margin-top: 2px; overflow-wrap: anywhere; color: var(--muted); font-size: 11px; }
+    .item-note { margin-top: 8px; overflow-wrap: anywhere; white-space: pre-wrap; color: var(--text); font-size: 13px; }
+    .item-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 9px; color: var(--muted); font-size: 10px; }
+    .meta-warning { padding: 2px 6px; border-radius: 999px; background: var(--warn-soft); color: var(--warn); font-weight: 700; }
+    .item-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .item-actions .button { min-height: 31px; padding: 4px 9px; font-size: 11px; }
+    .empty { padding: 36px 14px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); text-align: center; }
+    .empty strong { display: block; margin-bottom: 3px; color: var(--text); font-size: 13px; }
+    .footer { width: min(1180px, 100%); margin: 0 auto; padding: 0 clamp(14px, 2.8vw, 30px) 34px; color: var(--muted); font-size: 12px; }
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 60;
+      max-width: min(360px, calc(100vw - 36px));
+      padding: 11px 14px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: var(--surface);
+      box-shadow: var(--shadow-md);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { border-color: color-mix(in srgb, var(--danger) 32%, var(--line)); color: var(--danger); }
+    dialog {
+      width: min(640px, calc(100% - 28px));
+      max-height: min(760px, calc(100dvh - 28px));
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-md);
+    }
+    dialog::backdrop { background: rgba(15, 17, 14, .52); backdrop-filter: blur(4px); }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
+    .dialog-header h2 { margin: 0; font-size: 17px; }
+    .dialog-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); cursor: pointer; }
+    .dialog-close:hover { background: var(--surface-hover); }
+    .dialog-close svg { width: 17px; height: 17px; }
+    .dialog-body { padding: 20px 20px 28px; overflow: auto; max-height: calc(100dvh - 102px); }
+    .dialog-body h3 { margin: 25px 0 8px; padding-top: 19px; border-top: 1px solid color-mix(in srgb, var(--line) 78%, transparent); font-size: 14px; }
+    .dialog-body h3:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+    .dialog-body p, .dialog-body li { color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .dialog-body p { margin: 8px 0 0; }
+    .dialog-body ul, .dialog-body ol { margin: 8px 0 0; padding-left: 22px; }
+    .dialog-body li + li { margin-top: 7px; }
+    .dialog-note { margin-top: 12px; padding: 11px 12px; border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line)); border-radius: 10px; background: var(--accent-soft); color: var(--text) !important; }
+    code { padding: 1px 5px; border-radius: 5px; background: var(--surface-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* Layout refinement */
-header{align-items:center;padding:8px 0 18px;border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent)}
-header .row{margin-left:auto}.grid{grid-template-columns:minmax(0,1.35fr) minmax(290px,.65fr);align-items:stretch}.add-panel{padding:18px}.manage-panel{display:flex;flex-direction:column;justify-content:space-between}.manage-panel h2{margin-bottom:16px}.manage-panel .row{gap:8px}.manage-panel .hint{margin-top:auto;padding-top:16px}.add{grid-template-columns:minmax(0,1fr) 148px}.add .url-row{grid-column:1/-1}.add textarea{min-height:48px}.add-cta{min-width:148px}.toolbar{padding:8px 0 2px;border-bottom:1px solid color-mix(in srgb,var(--line) 65%,transparent)}.toolbar .spacer{min-width:8px}.list{margin-top:14px}.panel:has(#list){padding:18px}.panel:has(#list)>.row{padding-bottom:4px}.card{transition:transform .15s,border-color .15s,box-shadow .15s}.card:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 55%,var(--line));box-shadow:0 8px 22px #0002}.actions{padding-top:2px}.actions button{white-space:nowrap}@media(max-width:720px){header{align-items:flex-start}.grid{grid-template-columns:1fr}.manage-panel{gap:18px}.add{grid-template-columns:1fr auto}.add-cta{min-width:0}.toolbar{gap:5px}.toolbar button{padding:5px 7px}.toolbar #purgeExpired{margin-top:2px;width:100%}}
+    body.pip { min-height: auto; background: var(--bg); }
+    body.pip .pip-shell { padding: 10px; }
+    .pip-panel { padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+    .pip-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+    .pip-head strong { font-size: 13px; }
+    .pip-count { margin-left: auto; color: var(--muted); font-size: 10px; }
+    .pip-add { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; margin-bottom: 9px; }
+    .pip-add .field { min-height: 34px; padding: 6px 8px; font-size: 11px; }
+    .pip-add .button { min-height: 34px; padding: 5px 9px; font-size: 11px; }
+    .pip-list { display: grid; gap: 6px; }
+    .pip-item { display: flex; align-items: center; gap: 6px; padding: 7px 8px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+    .pip-item-title { flex: 1; min-width: 0; overflow: hidden; color: var(--text); font-size: 11px; font-weight: 700; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+    .pip-item .button { min-height: 27px; padding: 2px 7px; font-size: 10px; }
+    .pip-empty { padding: 18px 8px; color: var(--muted); font-size: 11px; text-align: center; }
 
-/* Balanced composition: the control panel keeps its natural height instead of stretching */
-.grid{grid-template-columns:minmax(0,1fr) 340px;align-items:start;gap:18px}
-.add-panel{padding:20px}.manage-panel{display:block;padding:20px;align-self:start}
-.manage-panel h2{margin:0 0 14px}.manage-panel .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.manage-panel #exportBtn{grid-column:1/-1}.manage-panel .hint{margin:13px 0 0;padding:11px 0 0;border-top:1px solid color-mix(in srgb,var(--line) 65%,transparent)}
-.add{grid-template-columns:minmax(0,1fr) 152px;gap:10px}.add .url-row{grid-column:1/-1}.add textarea{min-height:52px}.add-cta{min-width:152px}
-.panel:has(#list){margin-top:18px!important;padding:20px}.panel:has(#list)>.row{min-height:28px}.toolbar{margin-top:12px;padding:10px 0 4px}
-@media(max-width:760px){.grid{grid-template-columns:1fr}.manage-panel .row{display:flex;flex-wrap:wrap}.manage-panel #exportBtn{flex-basis:auto}.manage-panel .hint{display:none}.add{grid-template-columns:1fr auto}.add-cta{min-width:0}}
-
-/* Compact finish panel: remove the visual dead space under its actions */
-.manage-panel{height:auto!important;min-height:0!important;align-self:start!important}
-.manage-panel .row{margin:0}.manage-panel .hint{display:none}
-@media(min-width:761px){.grid{align-items:start}.manage-panel{padding-bottom:19px}}
-
-/* Compact the add panel so the next section does not leave a large empty right-hand area */
-.add-panel #inputStatus{display:none}.add-panel .hint{display:none}.add-panel .notice{margin:6px 0 0;min-height:0}.add-panel .add textarea{min-height:40px}.add-panel{padding-bottom:14px}.add-head{margin-bottom:9px}
-</style>
+    @media (max-width: 820px) {
+      .page-intro { align-items: stretch; flex-direction: column; gap: 10px; }
+      .local-badge { align-self: flex-start; }
+      .workspace-head, .list-head { align-items: stretch; flex-direction: column; }
+      .list-controls { align-items: flex-start; }
+      .filter-cluster { flex: 1 1 100%; }
+      .stats { width: 100%; }
+      .stat { flex: 1 1 0; min-width: 0; }
+    }
+    @media (max-width: 560px) {
+      :root { --header-height: 58px; }
+      .header-inner { padding-block: 8px; }
+      .brand-mark { width: 34px; height: 34px; border-radius: 10px; }
+      .brand-name { font-size: 15px; }
+      .brand-meta { display: none; }
+      .header-actions { gap: 11px; }
+      .main { padding-top: 18px; }
+      .workspace { padding: 14px; border-radius: 14px; }
+      .url-row, .retention-row { grid-template-columns: 1fr; }
+      .url-row .button, .retention-row .button { width: 100%; }
+      .list-controls { gap: 8px; }
+      .floating-control { width: 100%; justify-content: space-between; }
+      .floating-control .button { flex: 1 1 auto; }
+      .filter-cluster { width: 100%; overflow: hidden; }
+      .filter-row { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 2px; }
+      .filter-button { flex: 0 0 auto; }
+      .controls-spacer { display: none; }
+      .more-tools { margin-left: auto; }
+      .more-menu { right: 0; }
+      .item-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .item-actions .button { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+    }
+  </style>
 </head>
 <body>
-<main class="app"><header><div><h1>Temporary <span>Links</span></h1><p class="sub">Save links and file paths for just as long as you need them.</p></div><div class="row"><button id="themeBtn" class="theme-toggle" title="Switch to light mode">☀</button><button id="pipBtn" class="primary">↗ Open floating window</button><span id="support" class="count"></span></div></header>
-<section class="grid"><div class="panel add-panel"><div class="add-head"><h2>Quick add</h2><span class="badge">Temporary links</span></div><div class="add"><div class="url-row"><input id="url" class="field" placeholder="Paste a URL or file path" autocomplete="off"><button id="pasteBtn" class="paste-btn" title="Paste clipboard content into the input field only">📋 Paste</button></div><textarea id="note" class="field" placeholder="Note (optional)"></textarea><select id="ttl" class="field"><option value="session">This session</option><option value="today">Until today</option><option value="3d">3 days</option><option value="7d">7 days</option><option value="keep">Keep until removed</option></select><button id="addBtn" class="primary add-cta">＋ Add</button></div><p id="inputStatus" class="input-status">Paste a URL or Windows file path</p><p id="notice" class="notice"></p><p class="hint"><b>📋 Paste</b> only fills the input. <b>＋ Add</b> saves it.<span class="keyboard-hint"> Press Enter to add</span></p></div><div class="panel manage-panel"><h2>Wrap up</h2><div class="row"><button id="exportBtn">Export Markdown</button><button id="clearDoneBtn">Clear done</button><button id="clearAllBtn" class="danger">Clear all</button></div></div></section>
-<section class="panel" style="margin-top:16px"><div class="pip-top"><strong>Temporary Links</strong><span class="spacer"></span><span id="pipCount" class="count"></span></div><div class="row"><h2 style="margin:0">On the shelf</h2><span class="spacer"></span><span id="count" class="count"></span></div><div class="toolbar" id="toolbar"><button data-filter="active" class="active">Active</button><button data-filter="all">All</button><button data-filter="done">Done</button><span class="spacer"></span><button id="purgeExpired" title="Remove expired links only">Clear expired</button></div><div id="list" class="list"></div></section></main>
-<script>
-(() => {
-const KEY='temporary-links-v1', THEME_KEY='temporary-links-theme'; let links=load(); let pipWin=null; let filter='active'; let theme=localStorage.getItem(THEME_KEY)||'dark';
-const $=s=>document.querySelector(s); const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||[]}catch{return[]}}
-function classify(v){v=v.trim();if(/^https?:\/\//i.test(v))return'web';if(/^file:\/\//i.test(v))return'file';if(/^[a-z]:[\\/]/i.test(v)||/^\\\\/.test(v))return'path';return null}
-function localPath(v){const kind=classify(v);if(kind==='path')return v;if(kind!=='file')return'';try{const u=new URL(v),p=decodeURIComponent(u.pathname);return u.host?`\\${u.host}${p.replace(/\//g,'\\')}`:p.replace(/^\/([a-z]:\/)/i,'$1').replace(/\//g,'\\')}catch{return v}}
-function domain(v){try{return new URL(v).hostname.replace(/^www\./,'')}catch{return v}}
-function titleFor(v){if(classify(v)==='web')return domain(v);return localPath(v).split(/[\\/]/).filter(Boolean).pop()||'Local file'}
-function parentPath(v){const p=localPath(v),a=p.split(/[\\/]/);a.pop();return /^[a-z]:$/i.test(a[0])?a[0]+'\\'+a.slice(1).join('\\'):a.join('\\')}
-function expiry(v){const d=new Date();if(v==='session')return'session';if(v==='keep')return null;d.setHours(23,59,59,999);if(v==='3d')d.setDate(d.getDate()+3);if(v==='7d')d.setDate(d.getDate()+7);return d.toISOString()}
-function expired(x){return x.expiresAt&&x.expiresAt!=='session'&&Date.now()>Date.parse(x.expiresAt)}
-function time(x){if(!x.expiresAt)return'Keep until removed';if(x.expiresAt==='session')return'This session';return 'Expires: '+new Date(x.expiresAt).toLocaleDateString('ja-JP')}
-function active(){return links.filter(x=>!x.done&&!expired(x))}
-function card(x,compact=false){const kind=x.kind||classify(x.url),local=kind==='file'||kind==='path',title=x.title||titleFor(x.url),path=localPath(x.url);if(compact)return `<article class="card pip-card ${x.done?'done':''}" data-id="${x.id}">${local?`<span class="local-title" title="${esc(path)}">${esc(title)}</span>`:`<a class="title" href="${esc(x.url)}" target="_blank" rel="noopener" title="${esc(x.url)}">${esc(title)}</a>`}<div class="actions">${local?'<button class="copy-path" title="Copy path">Copy</button>':''}<button class="done" title="Done">✓</button><button class="delete danger" title="Remove">×</button></div></article>`;return `<article class="card ${x.done?'done':''}" data-id="${x.id}">${local?`<span class="local-title" title="${esc(path)}">${esc(title)}</span>`:`<a class="title" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(title)}</a>`}<div class="${local?'local-path':'domain'}">${esc(local?path:domain(x.url))}</div>${x.note?`<div class="note">${esc(x.note)}</div>`:''}<div class="row" style="margin-top:8px"><span class="meta">${time(x)}</span>${expired(x)?'<span class="meta" style="color:var(--warn)">Expired</span>':''}</div><div class="actions">${local?'<button class="copy-path">Copy path</button><button class="copy-parent">Copy folder</button><button class="copy-name">Copy name</button>':'<button class="open">Open</button>'}<button class="done">${x.done?'Restore':'✓ Done'}</button><button class="delete danger">× Remove</button></div></article>`}
-function render(){const all=[...links].sort((x,y)=>(x.done-y.done)||(y.createdAt-x.createdAt));const a=filter==='active'?all.filter(x=>!x.done&&!expired(x)):filter==='done'?all.filter(x=>x.done):all;$('#list').innerHTML=a.length?a.map(x=>card(x)).join(''):`<div class="empty">${filter==='active'?'No active links.':'Nothing in this view.'}</div>`;$('#count').textContent=active().length+' links';document.querySelectorAll('#toolbar [data-filter]').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter))}
-function syncPip(){const w=pipWin;if(!w||w.closed)return;const list=w.document.querySelector('#list'),count=w.document.querySelector('#pipCount');if(!list||!count)return;const a=active();count.textContent=a.length+' links';list.innerHTML=a.length?a.map(x=>card(x,true)).join(''):'<div class="empty">Your shelf is empty</div>'}
-function save(){localStorage.setItem(KEY,JSON.stringify(links));render();syncPip()}
-function notice(t,err=false){const n=$('#notice');if(n){n.textContent=t;n.style.color=err?'var(--danger)':'var(--green)';setTimeout(()=>{if(n.textContent===t)n.textContent=''},1800)}const w=pipWin;if(w&&!w.closed){let toast=w.document.querySelector('.toast-pip');if(!toast){toast=w.document.createElement('div');toast.className='toast-pip';w.document.body.append(toast)}toast.textContent=t;setTimeout(()=>toast?.remove(),1400)}}
-async function copyText(t,msg){try{await navigator.clipboard.writeText(t);notice(msg)}catch{const e=document.createElement('textarea');e.value=t;e.style.cssText='position:fixed;opacity:0';document.body.append(e);e.select();const ok=document.execCommand('copy');e.remove();notice(ok?msg:'Could not copy',!ok)}}
-function bind(doc){if(doc.__bound)return;doc.__bound=true;doc.addEventListener('click',async e=>{const a=e.target.closest('button,a'),c=a?.closest('.card');if(!a||!c)return;const x=links.find(z=>z.id===c.dataset.id);if(!x)return;if(a.classList.contains('done')){e.preventDefault();x.done=!x.done;save();return}if(a.classList.contains('delete')){e.preventDefault();links=links.filter(z=>z.id!==x.id);save();return}if(a.classList.contains('copy-path')){e.preventDefault();await copyText(localPath(x.url),'Copy pathしました');return}if(a.classList.contains('copy-parent')){e.preventDefault();await copyText(parentPath(x.url),'Copy folderしました');return}if(a.classList.contains('copy-name')){e.preventDefault();await copyText(x.title||titleFor(x.url),'Copy nameしました');return}if(a.classList.contains('open')){e.preventDefault();window.open(x.url,'_blank','noopener')}})}
-function addFrom(doc){const input=doc.querySelector(doc===document?'#url':'#pipUrl'),url=input.value.trim(),kind=classify(url);if(!kind){notice('Enter an http(s) URL or a local path',true);return}if(links.some(x=>x.url===url&&!x.done)){notice('Already on the shelf');return}const note=doc===document?$('#note').value.trim():'';const expiresAt=doc===document?expiry($('#ttl').value):expiry('session');links.unshift({id:crypto.randomUUID(),url,kind,note,title:titleFor(url),expiresAt,done:false,createdAt:Date.now()});input.value='';if(doc===document){$('#note').value='';filter='active';updateInputStatus()}save();notice('Added to shelf')}
-function add(){addFrom(document)}
-function applyTheme(){document.body.classList.toggle('light',theme==='light');$('#themeBtn').textContent=theme==='light'?'☾':'☀';$('#themeBtn').title=theme==='light'?'Switch to dark mode':'Switch to light mode';if(pipWin&&!pipWin.closed){pipWin.document.body.classList.toggle('light',theme==='light');const b=pipWin.document.querySelector('#pipThemeBtn');if(b)b.textContent=theme==='light'?'☾':'☀'}}
-function toggleTheme(){theme=theme==='light'?'dark':'light';localStorage.setItem(THEME_KEY,theme);applyTheme()}
-function pasted(e){const d=e.clipboardData,html=d?.getData('text/html');if(html){const a=new DOMParser().parseFromString(html,'text/html').querySelector('a[href]');if(a&&classify(a.href)==='web'){e.preventDefault();$('#url').value=a.href;$('#url').dataset.title=a.textContent.trim();notice('Link title detected');return}}const t=d?.getData('text/plain').trim();if(classify(t)){e.preventDefault();$('#url').value=t;delete $('#url').dataset.title;notice('Pasted into the input field。Choose Add to save it')}}
-function updateInputStatus(){const v=$('#url').value.trim(),k=classify(v),status=$('#inputStatus');if(!v){status.textContent='Paste a URL or Windows file path';status.className='input-status';return}if(k==='web'){status.textContent='Will be added as a web link';status.className='input-status ok';return}if(k==='file'||k==='path'){status.textContent='Will be added as a local path（Copy）';status.className='input-status ok';return}status.textContent='Use http(s), file:///, C:\..., or \\server\share';status.className='input-status'}
-$('#toolbar').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;filter=b.dataset.filter;render()});
-$('#purgeExpired').onclick=()=>{const n=links.filter(expired).length;if(!n){notice('No expired links');return}if(confirm(`Clear ${n} expired link(s)?`)){links=links.filter(x=>!expired(x));save();notice('Expired links cleared')}};
-$('#url').addEventListener('input',updateInputStatus);
-$('#addBtn').onclick=add;$('#url').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add()}};$('#url').onpaste=pasted;$('#pasteBtn').onclick=async()=>{try{$('#url').value=(await navigator.clipboard.readText()).trim();delete $('#url').dataset.title;$('#url').focus();updateInputStatus();notice('Pasted into the input field。Choose Add to save it')}catch{notice('Paste directly into the field',true)}};$('#clearDoneBtn').onclick=()=>{links=links.filter(x=>!x.done);save()};$('#clearAllBtn').onclick=()=>{if(confirm('Alllinks and saved data?')){links=[];localStorage.removeItem(KEY);render();syncPip();notice('All捨てました')}};$('#exportBtn').onclick=()=>{const md=links.map(x=>`- [${x.title||titleFor(x.url)}](${x.url})${x.note?' — '+x.note:''}${x.done?' _(Done)_':''}`).join('\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([md||'# Temporary Links\n'],{type:'text/markdown'}));a.download='temporary-links-'+new Date().toISOString().slice(0,10)+'.md';a.click();URL.revokeObjectURL(a.href)};
-async function openPip(){
-  if(!('documentPictureInPicture'in window)){notice('Floating window is not supported in this browser',true);return}
-  if(pipWin&&!pipWin.closed){pipWin.focus();return}
-  try{
-    pipWin=await documentPictureInPicture.requestWindow({width:390,height:520});
-    document.querySelectorAll('style').forEach(n=>pipWin.document.head.append(n.cloneNode(true)));
-    pipWin.document.body.className='pip '+(theme==='light'?'light':'');
-    pipWin.document.body.innerHTML='<main class="app"><section class="panel"><div class="pip-top"><strong>Temporary Links</strong><span class="spacer"></span><button id="pipThemeBtn" class="theme-toggle" title="Toggle theme">☀</button><span id="pipCount" class="count"></span></div><div class="pip-add"><input id="pipUrl" class="field" placeholder="Paste URL / path"><button id="pipAddBtn" class="primary">＋ Add</button></div><div id="list" class="list"></div></section></main>';
-    bind(pipWin.document);
-    const addPip=()=>addFrom(pipWin.document);
-    pipWin.document.querySelector('#pipAddBtn').onclick=addPip;
-    pipWin.document.querySelector('#pipUrl').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addPip()}};
-    pipWin.document.querySelector('#pipThemeBtn').onclick=toggleTheme;
-    pipWin.addEventListener('pagehide',()=>{pipWin=null;$('#pipBtn').classList.remove('pip-open');$('#pipBtn').textContent='↗ Open floating window'});
-    $('#pipBtn').classList.add('pip-open');$('#pipBtn').textContent='● Floating window is open';syncPip()
-  }catch{notice('Could not open floating window',true)}
-}
-$('#themeBtn').onclick=toggleTheme;applyTheme();$('#pipBtn').onclick=openPip;$('#support').textContent=('documentPictureInPicture'in window)?'Floating window ready':'Standard mode';bind(document);window.addEventListener('beforeunload',()=>{links=links.filter(x=>x.expiresAt!=='session');localStorage.setItem(KEY,JSON.stringify(links))});render();
-})();
-</script></body></html>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7H7a5 5 0 0 0 0 10h4a5 5 0 0 0 3.5-1.4"/><path d="M14.5 17H17a5 5 0 0 0 0-10h-4A5 5 0 0 0 9.5 8.4M8.5 12h7"/></svg>
+        </div>
+        <div class="brand-copy">
+          <p class="brand-name">Temporary Links <span class="version-badge">v1.0</span></p>
+          <p class="brand-meta" data-i18n="brandMeta">単一HTML・ローカル保存・フローティング表示</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="language-button" id="languageButton" type="button" aria-label="Switch language">EN</button>
+        <button class="header-icon-button" id="helpButton" type="button" data-i18n-title="helpTitle" data-i18n-aria-label="helpTitle" title="使い方と注意事項" aria-label="使い方と注意事項">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.35 2.35 0 1 1 3.72 1.9c-.92.67-1.52 1.12-1.52 2.1"/><path d="M12 17h.01"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="page-intro" aria-labelledby="heroTitle">
+      <div>
+        <h1 id="heroTitle" data-i18n="introTitle">作業中のリンクを、一時置き。</h1>
+        <p data-i18n="lead">Web URLやローカルパスを必要な間だけ保存。タブを増やさず、作業中の参照先をまとめておけます。</p>
+      </div>
+      <div class="local-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.6 2.8 8 7 10 4.2-2 7-5.4 7-10V6z"/><path d="m9 12 2 2 4-5"/></svg>
+        <span data-i18n="localBadge">端末内に保存</span>
+      </div>
+    </section>
+
+    <section class="workspace" aria-labelledby="addTitle">
+      <div class="workspace-head">
+        <div>
+          <h2 id="addTitle" data-i18n="addTitle">リンクを追加</h2>
+          <p data-i18n="addBody">URLまたはファイルパスを貼り付け、必要ならメモと保持期間を指定します。</p>
+        </div>
+      </div>
+      <div class="field-grid">
+        <div class="url-row">
+          <label class="sr-only" for="urlInput" data-i18n="urlLabel">URLまたはファイルパス</label>
+          <input class="field" id="urlInput" type="text" autocomplete="off" spellcheck="false" data-i18n-placeholder="urlPlaceholder" placeholder="https://... / C:\work\file.xlsx / \\server\share\file.xlsx">
+          <button class="button" id="pasteButton" type="button" data-i18n="paste">貼り付け</button>
+        </div>
+        <label class="sr-only" for="noteInput" data-i18n="noteLabel">メモ</label>
+        <textarea class="field" id="noteInput" data-i18n-placeholder="notePlaceholder" placeholder="メモ（任意）"></textarea>
+        <div class="retention-row">
+          <label class="sr-only" for="retentionSelect" data-i18n="retentionLabel">保持期間</label>
+          <select id="retentionSelect">
+            <option value="session" data-i18n="ttlSession">このタブを閉じるまで</option>
+            <option value="today" data-i18n="ttlToday">今日まで</option>
+            <option value="3d" data-i18n="ttl3d">3日後まで</option>
+            <option value="7d" data-i18n="ttl7d">7日後まで</option>
+            <option value="keep" data-i18n="ttlKeep">削除するまで</option>
+          </select>
+          <button class="button primary" id="addButton" type="button" data-i18n="add">追加</button>
+        </div>
+      </div>
+      <div class="input-hint" id="inputHint" aria-live="polite"></div>
+    </section>
+
+    <section class="workspace list-shell" aria-labelledby="listTitle">
+      <div class="list-head">
+        <div>
+          <h2 id="listTitle" data-i18n="listTitle">一時置きリスト</h2>
+          <p data-i18n="listBody">完了した項目や期限切れの項目は、必要なときにまとめて整理できます。</p>
+        </div>
+        <div class="stats" aria-live="polite">
+          <div class="stat"><span class="stat-value" id="activeCount">0</span><span class="stat-label" data-i18n="activeStat">使用中</span></div>
+          <div class="stat"><span class="stat-value" id="allCount">0</span><span class="stat-label" data-i18n="allStat">すべて</span></div>
+        </div>
+      </div>
+
+      <div class="list-controls">
+        <div class="floating-control">
+          <button class="button primary" id="pipButton" type="button" data-i18n="openFloating">フローティング表示</button>
+          <div class="support-chip" id="pipSupport"><span class="support-dot"></span><span id="pipSupportText"></span></div>
+        </div>
+        <div class="filter-cluster">
+          <span class="control-label" data-i18n="filterLabel">表示</span>
+          <div class="filter-row" id="filterRow" role="group" aria-label="Filter">
+            <button class="filter-button active" type="button" data-filter="active" data-i18n="filterActive">使用中</button>
+            <button class="filter-button" type="button" data-filter="all" data-i18n="filterAll">すべて</button>
+            <button class="filter-button" type="button" data-filter="done" data-i18n="filterDone">完了</button>
+            <button class="filter-button" type="button" data-filter="expired" data-i18n="filterExpired">期限切れ</button>
+          </div>
+        </div>
+        <span class="controls-spacer"></span>
+        <details class="more-tools" id="moreTools">
+          <summary class="button compact" data-i18n="moreActions">その他</summary>
+          <div class="more-menu">
+            <button class="button compact" id="exportButton" type="button" data-i18n="exportMarkdown">Markdown保存</button>
+            <button class="button compact" id="clearDoneButton" type="button" data-i18n="clearDone">完了を削除</button>
+            <button class="button compact" id="clearExpiredButton" type="button" data-i18n="clearExpired">期限切れを削除</button>
+            <button class="button compact danger" id="clearAllButton" type="button" data-i18n="clearAll">すべて削除</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="search-wrap">
+        <label class="sr-only" for="searchInput" data-i18n="searchLabel">リストを検索</label>
+        <input class="field" id="searchInput" type="search" autocomplete="off" data-i18n-placeholder="searchPlaceholder" placeholder="タイトル・URL・メモを検索">
+      </div>
+
+      <div class="list" id="list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">Temporary Links · MIT License · <span data-i18n="footerText">データはこのアプリから外部送信されません</span></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog id="helpDialog" aria-labelledby="helpTitle">
+    <div class="dialog-header">
+      <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
+      <button class="dialog-close" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+      </button>
+    </div>
+    <div class="dialog-body">
+      <h3 data-i18n="helpBasicsTitle">基本操作</h3>
+      <ol>
+        <li data-i18n="helpStep1">URLまたはローカルパスを入力し、必要ならメモと保持期間を指定して「追加」を押します。</li>
+        <li data-i18n="helpStep2">Webリンクは「開く」、ローカルパスは「パスをコピー」などから利用します。</li>
+        <li data-i18n="helpStep3">使用中・すべて・完了・期限切れで絞り込み、不要になった項目は削除できます。</li>
+      </ol>
+
+      <h3 data-i18n="helpFloatingTitle">フローティング表示</h3>
+      <p data-i18n="helpFloatingBody">対応ブラウザーのHTTPSページでは、使用中の項目を常に手前に表示する小さなウィンドウで開けます。非対応環境では通常のリスト機能をそのまま使えます。</p>
+
+      <h3 data-i18n="helpLocalTitle">ローカルパス</h3>
+      <p data-i18n="helpLocalBody">通常のWebページから任意のローカルファイルを直接開くことはブラウザー制約の影響を受けるため、パス・フォルダー・ファイル名のコピーを提供します。</p>
+
+      <h3 data-i18n="helpPrivacyTitle">保存とプライバシー</h3>
+      <ul>
+        <li data-i18n="helpPrivacy1">リンク、パス、メモはブラウザー内のlocalStorage / sessionStorageに保存され、このアプリから送信されません。</li>
+        <li data-i18n="helpPrivacy2">「このタブを閉じるまで」はsessionStorageを使うため、タブを閉じると消えます。</li>
+        <li data-i18n="helpPrivacy3">ブラウザーのサイトデータを削除すると保存内容も消えます。必要な一覧はMarkdownとして保存してください。</li>
+      </ul>
+      <p class="dialog-note" data-i18n="helpOffline">アプリ本体は単一HTMLです。通常機能はローカルファイルでも使えますが、フローティング表示は対応する安全なコンテキストが必要です。</p>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const VERSION = '1.0';
+      const KEYS = {
+        persistent: 'temporary-links-v1',
+        session: 'temporary-links-session-v2',
+        language: 'temporary-links-language'
+      };
+      const translations = {
+        ja: {
+          brandMeta: '単一HTML・ローカル保存・フローティング表示',
+          introTitle: '作業中のリンクを、一時置き。',
+          lead: 'Web URLやローカルパスを必要な間だけ保存。タブを増やさず、作業中の参照先をまとめておけます。',
+          localBadge: '端末内に保存',
+          addTitle: 'リンクを追加', addBody: 'URLまたはファイルパスを貼り付け、必要ならメモと保持期間を指定します。',
+          urlLabel: 'URLまたはファイルパス', urlPlaceholder: 'https://... / C:\\work\\file.xlsx / \\\\server\\share\\file.xlsx',
+          noteLabel: 'メモ', notePlaceholder: 'メモ（任意）', retentionLabel: '保持期間', paste: '貼り付け', add: '追加',
+          ttlSession: 'このタブを閉じるまで', ttlToday: '今日まで', ttl3d: '3日後まで', ttl7d: '7日後まで', ttlKeep: '削除するまで',
+          listTitle: '一時置きリスト', listBody: '完了した項目や期限切れの項目は、必要なときにまとめて整理できます。',
+          activeStat: '使用中', allStat: 'すべて', filterLabel: '表示', moreActions: 'その他', searchLabel: 'リストを検索', searchPlaceholder: 'タイトル・URL・メモを検索',
+          floatingKicker: 'おすすめ', floatingTitle: 'フローティング表示', floatingBody: '使用中の項目だけを小さなウィンドウに出して、別タブや他のアプリを見ながら参照できます。', floatingCaption: '対応ブラウザーでは常に手前に表示できます。',
+          manageKicker: '整理・書き出し', manageTitle: 'リストを整える', manageBody: '保存や一括削除は、リストから少し離してまとめました。',
+          filterKicker: '表示フィルタ', filterTitle: '見たい項目に切り替える', filterBody: '使用中・完了・期限切れをここで切り替え、下の検索でさらに絞り込めます。',
+          filterActive: '使用中', filterAll: 'すべて', filterDone: '完了', filterExpired: '期限切れ',
+          openFloating: 'フローティング表示', floatingOpen: 'フローティング表示中', exportMarkdown: 'Markdown保存', clearDone: '完了を削除', clearExpired: '期限切れを削除', clearAll: 'すべて削除',
+          footerText: 'データはこのアプリから外部送信されません', helpTitle: '使い方と注意事項', close: '閉じる',
+          helpBasicsTitle: '基本操作', helpStep1: 'URLまたはローカルパスを入力し、必要ならメモと保持期間を指定して「追加」を押します。', helpStep2: 'Webリンクは「開く」、ローカルパスは「パスをコピー」などから利用します。', helpStep3: '使用中・すべて・完了・期限切れで絞り込み、不要になった項目は削除できます。',
+          helpFloatingTitle: 'フローティング表示', helpFloatingBody: '対応ブラウザーのHTTPSページでは、使用中の項目を常に手前に表示する小さなウィンドウで開けます。非対応環境では通常のリスト機能をそのまま使えます。',
+          helpLocalTitle: 'ローカルパス', helpLocalBody: '通常のWebページから任意のローカルファイルを直接開くことはブラウザー制約の影響を受けるため、パス・フォルダー・ファイル名のコピーを提供します。',
+          helpPrivacyTitle: '保存とプライバシー', helpPrivacy1: 'リンク、パス、メモはブラウザー内のlocalStorage / sessionStorageに保存され、このアプリから送信されません。', helpPrivacy2: '「このタブを閉じるまで」はsessionStorageを使うため、タブを閉じると消えます。', helpPrivacy3: 'ブラウザーのサイトデータを削除すると保存内容も消えます。必要な一覧はMarkdownとして保存してください。', helpOffline: 'アプリ本体は単一HTMLです。通常機能はローカルファイルでも使えますが、フローティング表示は対応する安全なコンテキストが必要です。',
+          pipReady: 'フローティング表示対応', pipUnavailable: 'フローティング表示はHTTPSの対応ブラウザーで利用可能',
+          hintEmpty: 'http(s) URL、file:/// URL、Windows / UNC / 絶対パスを追加できます。', hintWeb: 'Webリンクとして追加します。', hintLocal: 'ローカルパスとして追加します。', hintInvalid: '対応形式のURLまたはパスを入力してください。',
+          added: '追加しました', duplicate: '同じ項目が使用中です', pasteFailed: 'クリップボードを読めませんでした。入力欄へ直接貼り付けてください。', pasted: '入力欄へ貼り付けました', titleDetected: 'コピー元のリンク名も取得しました',
+          copiedPath: 'パスをコピーしました', copiedFolder: 'フォルダーをコピーしました', copiedName: 'ファイル名をコピーしました', copied: 'コピーしました', copyFailed: 'コピーできませんでした',
+          open: '開く', copyPath: 'パスをコピー', copyFolder: 'フォルダー', copyName: '名前', done: '完了', restore: '戻す', remove: '削除',
+          expiresSession: 'このタブを閉じるまで', expiresKeep: '削除するまで', expiresOn: '{date} まで', expired: '期限切れ',
+          emptyActiveTitle: '使用中のリンクはありません', emptyActiveBody: '上の入力欄から、いま必要な参照先を追加できます。', emptyViewTitle: '該当する項目はありません', emptyViewBody: '絞り込みや検索条件を変更してください。',
+          confirmDone: '完了した項目を {count} 件削除しますか？', confirmExpired: '期限切れの項目を {count} 件削除しますか？', confirmAll: '保存している Temporary Links をすべて削除しますか？',
+          noDone: '完了した項目はありません', noExpired: '期限切れの項目はありません', clearedDone: '完了した項目を削除しました', clearedExpired: '期限切れの項目を削除しました', clearedAll: 'すべて削除しました',
+          exported: 'Markdownを保存しました', floatingFailed: 'フローティングウィンドウを開けませんでした', floatingNotSupported: 'この環境ではフローティング表示を利用できません',
+          pipPlaceholder: 'URL / パスを追加', pipAdd: '追加', pipEmpty: '使用中の項目はありません',
+          webKind: 'Web', localKind: 'Local'
+        },
+        en: {
+          brandMeta: 'Single HTML · Local storage · Floating window',
+          introTitle: 'A temporary shelf for links in progress.',
+          lead: 'Keep web URLs and local paths only as long as you need them, without leaving a pile of tabs open.',
+          localBadge: 'Stored on this device',
+          addTitle: 'Add a link', addBody: 'Paste a URL or file path, then optionally add a note and retention period.',
+          urlLabel: 'URL or file path', urlPlaceholder: 'https://... / C:\\work\\file.xlsx / \\\\server\\share\\file.xlsx',
+          noteLabel: 'Note', notePlaceholder: 'Note (optional)', retentionLabel: 'Retention', paste: 'Paste', add: 'Add',
+          ttlSession: 'Until this tab closes', ttlToday: 'Until today', ttl3d: 'Until 3 days from now', ttl7d: 'Until 7 days from now', ttlKeep: 'Until removed',
+          listTitle: 'Temporary shelf', listBody: 'Completed and expired items can be cleaned up in bulk whenever you are ready.',
+          activeStat: 'Active', allStat: 'All', filterLabel: 'View', moreActions: 'More', searchLabel: 'Search list', searchPlaceholder: 'Search title, URL, path, or note',
+          filterActive: 'Active', filterAll: 'All', filterDone: 'Done', filterExpired: 'Expired',
+          openFloating: 'Floating window', floatingOpen: 'Floating window open', exportMarkdown: 'Save Markdown', clearDone: 'Clear done', clearExpired: 'Clear expired', clearAll: 'Clear all',
+          footerText: 'This app does not send your data anywhere', helpTitle: 'How to use & notes', close: 'Close',
+          helpBasicsTitle: 'Basics', helpStep1: 'Enter a URL or local path, optionally choose a note and retention period, then press Add.', helpStep2: 'Open web links directly. For local paths, use the copy actions for the path, folder, or file name.', helpStep3: 'Filter by Active, All, Done, or Expired, and remove items when you no longer need them.',
+          helpFloatingTitle: 'Floating window', helpFloatingBody: 'On a supported browser over HTTPS, active items can be shown in a small always-on-top window. The normal list continues to work when this capability is unavailable.',
+          helpLocalTitle: 'Local paths', helpLocalBody: 'Because normal web pages are restricted from opening arbitrary local files, the app provides copy actions for the path, parent folder, and file name instead.',
+          helpPrivacyTitle: 'Storage & privacy', helpPrivacy1: 'Links, paths, and notes are stored in localStorage / sessionStorage in your browser and are not sent by this app.', helpPrivacy2: 'Until this tab closes uses sessionStorage, so those items disappear when the tab is closed.', helpPrivacy3: 'Clearing browser site data also removes saved items. Save a Markdown copy if you need to keep the list.', helpOffline: 'The app itself is one HTML file. Core features work as a local file, while the floating window requires a supported secure context.',
+          pipReady: 'Floating window available', pipUnavailable: 'Floating window requires HTTPS and a supported browser',
+          hintEmpty: 'Add an http(s) URL, file:/// URL, Windows / UNC / absolute path.', hintWeb: 'This will be added as a web link.', hintLocal: 'This will be added as a local path.', hintInvalid: 'Enter a supported URL or path.',
+          added: 'Added', duplicate: 'That item is already active', pasteFailed: 'Could not read the clipboard. Paste directly into the field instead.', pasted: 'Pasted into the field', titleDetected: 'Link title detected from the clipboard',
+          copiedPath: 'Path copied', copiedFolder: 'Folder copied', copiedName: 'File name copied', copied: 'Copied', copyFailed: 'Could not copy',
+          open: 'Open', copyPath: 'Copy path', copyFolder: 'Folder', copyName: 'Name', done: 'Done', restore: 'Restore', remove: 'Remove',
+          expiresSession: 'Until this tab closes', expiresKeep: 'Until removed', expiresOn: 'Until {date}', expired: 'Expired',
+          emptyActiveTitle: 'No active links', emptyActiveBody: 'Add a reference you need right now using the field above.', emptyViewTitle: 'No matching items', emptyViewBody: 'Change the filter or search terms.',
+          confirmDone: 'Remove {count} completed item(s)?', confirmExpired: 'Remove {count} expired item(s)?', confirmAll: 'Remove all saved Temporary Links?',
+          noDone: 'No completed items', noExpired: 'No expired items', clearedDone: 'Completed items removed', clearedExpired: 'Expired items removed', clearedAll: 'All items removed',
+          exported: 'Markdown saved', floatingFailed: 'Could not open the floating window', floatingNotSupported: 'Floating window is not available in this environment',
+          pipPlaceholder: 'Add URL / path', pipAdd: 'Add', pipEmpty: 'No active items',
+          webKind: 'Web', localKind: 'Local'
+        }
+      };
+
+      const $ = selector => document.querySelector(selector);
+      const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+      const icon = kind => kind === 'web'
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5h7l2 2h9v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7.5v-2a2 2 0 0 1 2-2h5l2 2h5"/></svg>';
+
+      const localStore = safeStorage('localStorage');
+      const sessionStore = safeStorage('sessionStorage');
+      let language = readStorage(localStore, KEYS.language) || (navigator.language?.toLowerCase().startsWith('en') ? 'en' : 'ja');
+      let filter = 'active';
+      let query = '';
+      let pipWindow = null;
+      let toastTimer = 0;
+      let persistentItems = readJson(localStore, KEYS.persistent);
+      let sessionItems = readJson(sessionStore, KEYS.session);
+
+      // Migrate legacy "session" items out of localStorage so they follow true tab-session semantics.
+      const legacySessionItems = persistentItems.filter(item => item?.expiresAt === 'session');
+      if (legacySessionItems.length) {
+        const known = new Set(sessionItems.map(item => item.id));
+        legacySessionItems.forEach(item => { if (!known.has(item.id)) sessionItems.push(item); });
+        persistentItems = persistentItems.filter(item => item?.expiresAt !== 'session');
+        writeJson(localStore, KEYS.persistent, persistentItems);
+        writeJson(sessionStore, KEYS.session, sessionItems);
+      }
+
+      function t(key, vars = {}) {
+        let value = translations[language][key] ?? key;
+        Object.entries(vars).forEach(([name, replacement]) => { value = value.replaceAll(`{${name}}`, String(replacement)); });
+        return value;
+      }
+      function safeStorage(name) {
+        try { return window[name]; } catch { return null; }
+      }
+      function readStorage(storage, key) {
+        if (!storage) return null;
+        try { return storage.getItem(key); } catch { return null; }
+      }
+      function writeStorage(storage, key, value) {
+        if (!storage) return false;
+        try { storage.setItem(key, value); return true; } catch { return false; }
+      }
+      function readJson(storage, key) {
+        if (!storage) return [];
+        try {
+          const parsed = JSON.parse(storage.getItem(key) || '[]');
+          return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+        } catch { return []; }
+      }
+      function writeJson(storage, key, value) {
+        return writeStorage(storage, key, JSON.stringify(value));
+      }
+      function makeId() {
+        if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
+        return `tl-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      }
+      function classify(raw) {
+        const value = String(raw || '').trim();
+        if (/^https?:\/\//i.test(value)) return 'web';
+        if (/^file:\/\//i.test(value)) return 'file';
+        if (/^[a-z]:[\\/]/i.test(value) || /^\\\\/.test(value) || /^\/(?!\/)/.test(value)) return 'path';
+        return null;
+      }
+      function localPath(raw) {
+        const value = String(raw || '').trim();
+        const kind = classify(value);
+        if (kind === 'path') return value;
+        if (kind !== 'file') return '';
+        try {
+          const url = new URL(value);
+          const decoded = decodeURIComponent(url.pathname);
+          if (url.host) return `\\\\${url.host}${decoded.replace(/\//g, '\\')}`;
+          if (/^\/[a-z]:\//i.test(decoded)) return decoded.slice(1).replace(/\//g, '\\');
+          return decoded;
+        } catch { return value; }
+      }
+      function titleFor(itemOrValue) {
+        const item = typeof itemOrValue === 'object' ? itemOrValue : { url: itemOrValue };
+        if (item.title) return item.title;
+        const kind = item.kind || classify(item.url);
+        if (kind === 'web') {
+          try { return new URL(item.url).hostname.replace(/^www\./i, '') || item.url; } catch { return item.url; }
+        }
+        const path = localPath(item.url);
+        return path.split(/[\\/]/).filter(Boolean).pop() || path || t('localKind');
+      }
+      function parentPath(raw) {
+        const path = localPath(raw).replace(/[\\/]+$/, '');
+        if (!path) return '';
+        const index = Math.max(path.lastIndexOf('\\'), path.lastIndexOf('/'));
+        if (index < 0) return path;
+        if (index === 2 && /^[a-z]:[\\/]$/i.test(path.slice(0, 3))) return path.slice(0, 3);
+        return path.slice(0, index) || path.slice(0, 1);
+      }
+      function expiry(value) {
+        if (value === 'session') return 'session';
+        if (value === 'keep') return null;
+        const date = new Date();
+        date.setHours(23, 59, 59, 999);
+        if (value === '3d') date.setDate(date.getDate() + 3);
+        if (value === '7d') date.setDate(date.getDate() + 7);
+        return date.toISOString();
+      }
+      function isExpired(item) {
+        return Boolean(item.expiresAt && item.expiresAt !== 'session' && Number.isFinite(Date.parse(item.expiresAt)) && Date.now() > Date.parse(item.expiresAt));
+      }
+      function expiryLabel(item) {
+        if (!item.expiresAt) return t('expiresKeep');
+        if (item.expiresAt === 'session') return t('expiresSession');
+        const date = new Date(item.expiresAt);
+        const formatted = new Intl.DateTimeFormat(language === 'ja' ? 'ja-JP' : 'en', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);
+        return t('expiresOn', { date: formatted });
+      }
+      function allItems() {
+        return [...sessionItems, ...persistentItems];
+      }
+      function activeItems() {
+        return allItems().filter(item => !item.done && !isExpired(item));
+      }
+      function findItem(id) {
+        return sessionItems.find(item => item.id === id) || persistentItems.find(item => item.id === id) || null;
+      }
+      function removeItem(id) {
+        sessionItems = sessionItems.filter(item => item.id !== id);
+        persistentItems = persistentItems.filter(item => item.id !== id);
+      }
+      function persistAndRender() {
+        writeJson(localStore, KEYS.persistent, persistentItems);
+        writeJson(sessionStore, KEYS.session, sessionItems);
+        render();
+        syncPip();
+      }
+      function canonical(raw) {
+        const value = String(raw || '').trim();
+        if (classify(value) === 'web') {
+          try { return new URL(value).href; } catch { return value; }
+        }
+        return value;
+      }
+      function addItem(raw, note, retention, pastedTitle = '') {
+        const url = String(raw || '').trim();
+        const kind = classify(url);
+        if (!kind) { showToast(t('hintInvalid'), true); return false; }
+        const key = canonical(url);
+        if (activeItems().some(item => canonical(item.url) === key)) { showToast(t('duplicate')); return false; }
+        const item = {
+          id: makeId(),
+          url,
+          kind,
+          title: kind === 'web' && pastedTitle.trim() ? pastedTitle.trim() : '',
+          note: String(note || '').trim(),
+          expiresAt: expiry(retention),
+          done: false,
+          createdAt: Date.now()
+        };
+        if (retention === 'session') sessionItems.unshift(item); else persistentItems.unshift(item);
+        filter = 'active';
+        persistAndRender();
+        showToast(t('added'));
+        return true;
+      }
+      function getVisibleItems() {
+        let items = allItems().sort((a, b) => Number(a.done) - Number(b.done) || (b.createdAt || 0) - (a.createdAt || 0));
+        if (filter === 'active') items = items.filter(item => !item.done && !isExpired(item));
+        if (filter === 'done') items = items.filter(item => item.done);
+        if (filter === 'expired') items = items.filter(item => isExpired(item));
+        const normalized = query.trim().toLocaleLowerCase(language === 'ja' ? 'ja-JP' : 'en');
+        if (normalized) {
+          items = items.filter(item => [titleFor(item), item.url, item.note, localPath(item.url)].join('\n').toLocaleLowerCase(language === 'ja' ? 'ja-JP' : 'en').includes(normalized));
+        }
+        return items;
+      }
+      function itemCard(item) {
+        const kind = item.kind || classify(item.url);
+        const web = kind === 'web';
+        const path = web ? '' : localPath(item.url);
+        const expired = isExpired(item);
+        const title = titleFor(item);
+        const subtitle = web ? (() => { try { return new URL(item.url).hostname.replace(/^www\./i, ''); } catch { return item.url; } })() : path;
+        return `<article class="item-card${item.done ? ' done' : ''}${expired ? ' expired' : ''}" data-id="${esc(item.id)}">
+          <div class="item-top">
+            <div class="item-kind" title="${esc(web ? t('webKind') : t('localKind'))}">${icon(web ? 'web' : 'local')}</div>
+            <div class="item-main">
+              ${web ? `<a class="item-title" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(title)}</a>` : `<span class="item-title">${esc(title)}</span>`}
+              <div class="item-sub">${esc(subtitle)}</div>
+              ${item.note ? `<div class="item-note">${esc(item.note)}</div>` : ''}
+              <div class="item-meta"><span>${esc(expiryLabel(item))}</span>${expired ? `<span class="meta-warning">${esc(t('expired'))}</span>` : ''}</div>
+              <div class="item-actions">
+                ${web ? `<a class="button" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(t('open'))}</a>` : `<button class="button" type="button" data-action="copy-path">${esc(t('copyPath'))}</button><button class="button" type="button" data-action="copy-folder">${esc(t('copyFolder'))}</button><button class="button" type="button" data-action="copy-name">${esc(t('copyName'))}</button>`}
+                <button class="button" type="button" data-action="done">${esc(item.done ? t('restore') : t('done'))}</button>
+                <button class="button danger" type="button" data-action="remove">${esc(t('remove'))}</button>
+              </div>
+            </div>
+          </div>
+        </article>`;
+      }
+      function render() {
+        const items = getVisibleItems();
+        $('#activeCount').textContent = String(activeItems().length);
+        $('#allCount').textContent = String(allItems().length);
+        document.querySelectorAll('[data-filter]').forEach(button => button.classList.toggle('active', button.dataset.filter === filter));
+        if (!items.length) {
+          const activeEmpty = filter === 'active' && !query.trim();
+          $('#list').innerHTML = `<div class="empty"><strong>${esc(t(activeEmpty ? 'emptyActiveTitle' : 'emptyViewTitle'))}</strong><span>${esc(t(activeEmpty ? 'emptyActiveBody' : 'emptyViewBody'))}</span></div>`;
+        } else {
+          $('#list').innerHTML = items.map(itemCard).join('');
+        }
+        updatePipButton();
+      }
+      function updateInputHint() {
+        const value = $('#urlInput').value.trim();
+        const hint = $('#inputHint');
+        if (!value) { hint.textContent = t('hintEmpty'); hint.className = 'input-hint'; return; }
+        const kind = classify(value);
+        if (kind === 'web') { hint.textContent = t('hintWeb'); hint.className = 'input-hint ok'; return; }
+        if (kind === 'file' || kind === 'path') { hint.textContent = t('hintLocal'); hint.className = 'input-hint ok'; return; }
+        hint.textContent = t('hintInvalid');
+        hint.className = 'input-hint error';
+      }
+      function showToast(message, error = false) {
+        const toast = $('#toast');
+        toast.textContent = message;
+        toast.classList.toggle('error', error);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => toast.classList.remove('show'), 1900);
+        if (pipWindow && !pipWindow.closed) {
+          const pipToast = pipWindow.document.querySelector('#pipToast');
+          if (pipToast) {
+            pipToast.textContent = message;
+            pipToast.style.display = 'block';
+            pipWindow.setTimeout(() => { if (pipToast) pipToast.style.display = 'none'; }, 1400);
+          }
+        }
+      }
+      async function copyText(text, successMessage) {
+        try {
+          if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
+          else throw new Error('clipboard unavailable');
+          showToast(successMessage || t('copied'));
+          return;
+        } catch {
+          const textarea = document.createElement('textarea');
+          textarea.value = text;
+          textarea.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+          document.body.append(textarea);
+          textarea.select();
+          let ok = false;
+          try { ok = document.execCommand('copy'); } catch { ok = false; }
+          textarea.remove();
+          showToast(ok ? (successMessage || t('copied')) : t('copyFailed'), !ok);
+        }
+      }
+      function bindListEvents(doc) {
+        if (doc.__temporaryLinksBound) return;
+        doc.__temporaryLinksBound = true;
+        doc.addEventListener('click', event => {
+          const button = event.target.closest('[data-action]');
+          const card = button?.closest('[data-id]');
+          if (!button || !card) return;
+          const item = findItem(card.dataset.id);
+          if (!item) return;
+          const action = button.dataset.action;
+          if (action === 'done') { item.done = !item.done; persistAndRender(); return; }
+          if (action === 'remove') { removeItem(item.id); persistAndRender(); return; }
+          if (action === 'copy-path') { copyText(localPath(item.url), t('copiedPath')); return; }
+          if (action === 'copy-folder') { copyText(parentPath(item.url), t('copiedFolder')); return; }
+          if (action === 'copy-name') { copyText(titleFor(item), t('copiedName')); }
+        });
+      }
+      function applyLanguage() {
+        document.documentElement.lang = language;
+        document.querySelectorAll('[data-i18n]').forEach(node => { node.textContent = t(node.dataset.i18n); });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(node => { node.placeholder = t(node.dataset.i18nPlaceholder); });
+        document.querySelectorAll('[data-i18n-title]').forEach(node => { node.title = t(node.dataset.i18nTitle); });
+        document.querySelectorAll('[data-i18n-aria-label]').forEach(node => { node.setAttribute('aria-label', t(node.dataset.i18nAriaLabel)); });
+        $('#languageButton').textContent = language === 'ja' ? 'EN' : 'JA';
+        updatePipSupport();
+        updateInputHint();
+        render();
+        syncPip();
+      }
+      function toggleLanguage() {
+        language = language === 'ja' ? 'en' : 'ja';
+        writeStorage(localStore, KEYS.language, language);
+        applyLanguage();
+      }
+      function updatePipSupport() {
+        const supported = window.isSecureContext && 'documentPictureInPicture' in window;
+        const chip = $('#pipSupport');
+        chip.classList.toggle('ready', supported);
+        $('#pipSupportText').textContent = t(supported ? 'pipReady' : 'pipUnavailable');
+        $('#pipButton').disabled = !supported;
+      }
+      function updatePipButton() {
+        const open = pipWindow && !pipWindow.closed;
+        $('#pipButton').textContent = t(open ? 'floatingOpen' : 'openFloating');
+      }
+      function mainAdd() {
+        const input = $('#urlInput');
+        const added = addItem(input.value, $('#noteInput').value, $('#retentionSelect').value, input.dataset.pastedTitle || '');
+        if (!added) return;
+        input.value = '';
+        delete input.dataset.pastedTitle;
+        $('#noteInput').value = '';
+        updateInputHint();
+        input.focus();
+      }
+      async function pasteFromClipboard() {
+        try {
+          const text = (await navigator.clipboard.readText()).trim();
+          $('#urlInput').value = text;
+          delete $('#urlInput').dataset.pastedTitle;
+          updateInputHint();
+          $('#urlInput').focus();
+          showToast(t('pasted'));
+        } catch { showToast(t('pasteFailed'), true); }
+      }
+      function handlePaste(event) {
+        const clipboard = event.clipboardData;
+        const html = clipboard?.getData('text/html');
+        let detectedTitle = '';
+        if (html) {
+          const anchor = new DOMParser().parseFromString(html, 'text/html').querySelector('a[href]');
+          if (anchor && classify(anchor.href) === 'web') detectedTitle = anchor.textContent.trim();
+        }
+        window.setTimeout(() => {
+          if (detectedTitle) $('#urlInput').dataset.pastedTitle = detectedTitle;
+          updateInputHint();
+          if (detectedTitle) showToast(t('titleDetected'));
+        }, 0);
+      }
+      function markdownFor(items) {
+        const lines = items.map(item => {
+          const status = item.done ? (language === 'ja' ? ' _(完了)_' : ' _(Done)_') : '';
+          const note = item.note ? ` — ${item.note.replace(/\s+/g, ' ').trim()}` : '';
+          if ((item.kind || classify(item.url)) === 'web') return `- [${titleFor(item).replace(/[\[\]]/g, '\\$&')}](${item.url})${note}${status}`;
+          return `- \`${localPath(item.url).replace(/`/g, '\\`')}\`${note}${status}`;
+        });
+        return `# Temporary Links\n\n${lines.join('\n') || (language === 'ja' ? '_項目はありません。_' : '_No items._')}\n`;
+      }
+      function exportMarkdown() {
+        const blob = new Blob([markdownFor(allItems())], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        anchor.download = `temporary-links-${new Date().toISOString().slice(0, 10)}.md`;
+        document.body.append(anchor);
+        anchor.click();
+        anchor.remove();
+        window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        showToast(t('exported'));
+      }
+      function clearDone() {
+        const count = allItems().filter(item => item.done).length;
+        if (!count) { showToast(t('noDone')); return; }
+        if (!confirm(t('confirmDone', { count }))) return;
+        sessionItems = sessionItems.filter(item => !item.done);
+        persistentItems = persistentItems.filter(item => !item.done);
+        persistAndRender();
+        showToast(t('clearedDone'));
+      }
+      function clearExpired() {
+        const count = allItems().filter(isExpired).length;
+        if (!count) { showToast(t('noExpired')); return; }
+        if (!confirm(t('confirmExpired', { count }))) return;
+        sessionItems = sessionItems.filter(item => !isExpired(item));
+        persistentItems = persistentItems.filter(item => !isExpired(item));
+        persistAndRender();
+        showToast(t('clearedExpired'));
+      }
+      function clearAll() {
+        if (!allItems().length) { showToast(t('clearedAll')); return; }
+        if (!confirm(t('confirmAll'))) return;
+        sessionItems = [];
+        persistentItems = [];
+        try { localStore?.removeItem(KEYS.persistent); } catch { /* no-op */ }
+        try { sessionStore?.removeItem(KEYS.session); } catch { /* no-op */ }
+        render();
+        syncPip();
+        showToast(t('clearedAll'));
+      }
+      function pipItemCard(item) {
+        const web = (item.kind || classify(item.url)) === 'web';
+        return `<div class="pip-item" data-id="${esc(item.id)}">
+          ${web ? `<a class="pip-item-title" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" title="${esc(item.url)}">${esc(titleFor(item))}</a>` : `<span class="pip-item-title" title="${esc(localPath(item.url))}">${esc(titleFor(item))}</span>`}
+          ${web ? '' : `<button class="button" type="button" data-action="copy-path">${esc(t('copyPath'))}</button>`}
+          <button class="button" type="button" data-action="done">✓</button>
+          <button class="button danger" type="button" data-action="remove">×</button>
+        </div>`;
+      }
+      function syncPip() {
+        if (!pipWindow || pipWindow.closed) return;
+        const doc = pipWindow.document;
+        const list = doc.querySelector('#pipList');
+        const count = doc.querySelector('#pipCount');
+        if (!list || !count) return;
+        const items = activeItems();
+        count.textContent = String(items.length);
+        list.innerHTML = items.length ? items.map(pipItemCard).join('') : `<div class="pip-empty">${esc(t('pipEmpty'))}</div>`;
+        const input = doc.querySelector('#pipUrl');
+        const add = doc.querySelector('#pipAdd');
+        if (input) input.placeholder = t('pipPlaceholder');
+        if (add) add.textContent = t('pipAdd');
+        doc.documentElement.lang = language;
+      }
+      async function openFloating() {
+        if (!(window.isSecureContext && 'documentPictureInPicture' in window)) { showToast(t('floatingNotSupported'), true); return; }
+        if (pipWindow && !pipWindow.closed) { pipWindow.focus(); return; }
+        try {
+          pipWindow = await documentPictureInPicture.requestWindow({ width: 430, height: 560 });
+          document.querySelectorAll('style').forEach(style => pipWindow.document.head.append(style.cloneNode(true)));
+          pipWindow.document.title = 'Temporary Links';
+          pipWindow.document.body.className = 'pip';
+          pipWindow.document.body.innerHTML = `<main class="pip-shell"><section class="pip-panel"><div class="pip-head"><strong>Temporary Links</strong><span class="pip-count" id="pipCount">0</span></div><div class="pip-add"><input class="field" id="pipUrl" type="text" autocomplete="off"><button class="button primary" id="pipAdd" type="button"></button></div><div class="pip-list" id="pipList"></div><div id="pipToast" style="display:none;margin-top:8px;color:var(--muted);font-size:10px"></div></section></main>`;
+          bindListEvents(pipWindow.document);
+          const pipInput = pipWindow.document.querySelector('#pipUrl');
+          const addFromPip = () => {
+            if (addItem(pipInput.value, '', 'session', '')) pipInput.value = '';
+          };
+          pipWindow.document.querySelector('#pipAdd').addEventListener('click', addFromPip);
+          pipInput.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); addFromPip(); } });
+          pipWindow.addEventListener('pagehide', () => { pipWindow = null; updatePipButton(); });
+          syncPip();
+          updatePipButton();
+        } catch { showToast(t('floatingFailed'), true); }
+      }
+
+      $('#languageButton').addEventListener('click', toggleLanguage);
+      $('#helpButton').addEventListener('click', () => $('#helpDialog').showModal());
+      $('#closeHelpButton').addEventListener('click', () => $('#helpDialog').close());
+      $('#helpDialog').addEventListener('click', event => { if (event.target === $('#helpDialog')) $('#helpDialog').close(); });
+      $('#urlInput').addEventListener('input', () => { delete $('#urlInput').dataset.pastedTitle; updateInputHint(); });
+      $('#urlInput').addEventListener('paste', handlePaste);
+      $('#urlInput').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); mainAdd(); } });
+      $('#addButton').addEventListener('click', mainAdd);
+      $('#pasteButton').addEventListener('click', pasteFromClipboard);
+      $('#searchInput').addEventListener('input', event => { query = event.target.value; render(); });
+      $('#filterRow').addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filter = button.dataset.filter; render(); });
+      const moreTools = $('#moreTools');
+      document.addEventListener('click', event => {
+        if (moreTools.open && !moreTools.contains(event.target)) moreTools.removeAttribute('open');
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && moreTools.open) {
+          moreTools.removeAttribute('open');
+          moreTools.querySelector('summary')?.focus();
+        }
+      });
+      $('#pipButton').addEventListener('click', openFloating);
+      $('#exportButton').addEventListener('click', exportMarkdown);
+      $('#clearDoneButton').addEventListener('click', clearDone);
+      $('#clearExpiredButton').addEventListener('click', clearExpired);
+      $('#clearAllButton').addEventListener('click', clearAll);
+      bindListEvents(document);
+      applyLanguage();
+    })();
+  </script>
+</body>
+</html>
