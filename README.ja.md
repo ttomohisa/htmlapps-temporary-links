@@ -10,10 +10,8 @@
 
 ## デモ
 
-このリポジトリを GitHub Pages で公開すると、次のURLで開けます。
-
-- `https://ttomohisa.github.io/htmlapps-temporary-links/`
-- `temporary-links.html` の直接URLも利用できます。
+- [htmlapps-temporary-links](https://ttomohisa.github.io/htmlapps-temporary-links/)
+- [temporary-links.html](https://ttomohisa.github.io/htmlapps-temporary-links/temporary-links.html) の直接URLも利用できます。
 
 ## 主な機能
 

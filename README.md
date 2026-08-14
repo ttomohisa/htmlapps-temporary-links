@@ -12,8 +12,8 @@ Temporary Links is intentionally not a permanent bookmark manager. It is a tempo
 
 After publishing this repository with GitHub Pages:
 
-- `https://ttomohisa.github.io/htmlapps-temporary-links/`
-- Available at `temporary-links.html`.
+- [htmlapps-temporary-links](https://ttomohisa.github.io/htmlapps-temporary-links/)
+- Available at [temporary-links.html](https://ttomohisa.github.io/htmlapps-temporary-links/temporary-links.html) .
 
 ## Highlights
 
