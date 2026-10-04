@@ -334,6 +334,10 @@
     .dialog-body p { margin: 8px 0 0; }
     .dialog-body ul, .dialog-body ol { margin: 8px 0 0; padding-left: 22px; }
     .dialog-body li + li { margin-top: 7px; }
+    .edit-fields { display: grid; gap: 8px; }
+    .edit-fields label { margin-top: 8px; font-size: 13px; font-weight: 700; }
+    .edit-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    #editError { color: var(--danger); min-height: 20px; }
     .dialog-note { margin-top: 12px; padding: 11px 12px; border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line)); border-radius: 10px; background: var(--accent-soft); color: var(--text) !important; }
     code { padding: 1px 5px; border-radius: 5px; background: var(--surface-muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .92em; }
     .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -503,6 +507,24 @@
   <footer class="footer">Temporary Links · MIT License · <span data-i18n="footerText">データはこのアプリから外部送信されません</span></footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <dialog id="editDialog" aria-labelledby="editTitle" aria-describedby="editHelp">
+    <div class="dialog-header"><h2 id="editTitle" data-i18n="editTitle">参照先を編集</h2></div>
+    <div class="dialog-body">
+      <p id="editHelp" data-i18n="editHelp">URL・パスとメモを変更できます。保持期間と完了状態は変わりません。</p>
+      <div class="edit-fields">
+        <label for="editUrlInput" data-i18n="urlLabel">URLまたはファイルパス</label>
+        <input class="field" id="editUrlInput" type="text" autocomplete="off" spellcheck="false" aria-describedby="editError">
+        <label for="editNoteInput" data-i18n="noteLabel">メモ</label>
+        <textarea class="field" id="editNoteInput" data-i18n-placeholder="notePlaceholder" placeholder="メモ（任意）"></textarea>
+      </div>
+      <p id="editError" role="alert"></p>
+      <div class="edit-actions">
+        <button class="button" id="editCancelButton" type="button" data-i18n="cancel">キャンセル</button>
+        <button class="button primary" id="editSaveButton" type="button" data-i18n="save">保存</button>
+      </div>
+    </div>
+  </dialog>
+
   <dialog id="helpDialog" aria-labelledby="helpTitle">
     <div class="dialog-header">
       <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
@@ -515,6 +537,7 @@
       <ol>
         <li data-i18n="helpStep1">URLまたはローカルパスを入力し、必要ならメモと保持期間を指定して「追加」を押します。</li>
         <li data-i18n="helpStep2">Webリンクは「開く」、ローカルパスは「パスをコピー」などから利用します。</li>
+        <li data-i18n="helpEdit">各項目の「編集」からURL・パスとメモを変更できます。保持期間と完了状態はそのままです。</li>
         <li data-i18n="helpStep3">使用中・すべて・完了・期限切れで絞り込み、不要になった項目は削除できます。</li>
       </ol>
 
@@ -568,6 +591,10 @@
           helpPrivacyTitle: '保存とプライバシー', helpPrivacy1: 'リンク、パス、メモはブラウザー内のlocalStorage / sessionStorageに保存され、このアプリから送信されません。', helpPrivacy2: '「このタブを閉じるまで」はsessionStorageを使うため、タブを閉じると消えます。', helpPrivacy3: 'ブラウザーのサイトデータを削除すると保存内容も消えます。必要な一覧はMarkdownとして保存してください。', helpOffline: 'アプリ本体は単一HTMLです。通常機能はローカルファイルでも使えますが、フローティング表示は対応する安全なコンテキストが必要です。',
           pipReady: 'フローティング表示対応', pipUnavailable: 'フローティング表示はHTTPSの対応ブラウザーで利用可能',
           hintEmpty: 'http(s) URL、file:/// URL、Windows / UNC / 絶対パスを追加できます。', hintWeb: 'Webリンクとして追加します。', hintLocal: 'ローカルパスとして追加します。', hintInvalid: '対応形式のURLまたはパスを入力してください。',
+          edit: '編集', editTitle: '参照先を編集', save: '保存', cancel: 'キャンセル', saved: '変更を保存しました',
+          editHelp: 'URL・パスとメモを変更できます。保持期間と完了状態は変わりません。',
+          editMissing: 'この項目は削除されています。キャンセルして一覧へ戻ってください。', editStorageFailed: '保存できませんでした。変更は反映されていません。再試行するか、内容をコピーしてキャンセルしてください。',
+          helpEdit: '各項目の「編集」からURL・パスとメモを変更できます。保持期間と完了状態はそのままです。',
           added: '追加しました', duplicate: '同じ項目が使用中です', pasteFailed: 'クリップボードを読めませんでした。入力欄へ直接貼り付けてください。', pasted: '入力欄へ貼り付けました', titleDetected: 'コピー元のリンク名も取得しました',
           copiedPath: 'パスをコピーしました', copiedFolder: 'フォルダーをコピーしました', copiedName: 'ファイル名をコピーしました', copied: 'コピーしました', copyFailed: 'コピーできませんでした',
           open: '開く', copyPath: 'パスをコピー', copyFolder: 'フォルダー', copyName: '名前', done: '完了', restore: '戻す', remove: '削除',
@@ -599,6 +626,10 @@
           helpPrivacyTitle: 'Storage & privacy', helpPrivacy1: 'Links, paths, and notes are stored in localStorage / sessionStorage in your browser and are not sent by this app.', helpPrivacy2: 'Until this tab closes uses sessionStorage, so those items disappear when the tab is closed.', helpPrivacy3: 'Clearing browser site data also removes saved items. Save a Markdown copy if you need to keep the list.', helpOffline: 'The app itself is one HTML file. Core features work as a local file, while the floating window requires a supported secure context.',
           pipReady: 'Floating window available', pipUnavailable: 'Floating window requires HTTPS and a supported browser',
           hintEmpty: 'Add an http(s) URL, file:/// URL, Windows / UNC / absolute path.', hintWeb: 'This will be added as a web link.', hintLocal: 'This will be added as a local path.', hintInvalid: 'Enter a supported URL or path.',
+          edit: 'Edit', editTitle: 'Edit reference', save: 'Save', cancel: 'Cancel', saved: 'Changes saved',
+          editHelp: 'Change the URL, path, or note. Retention and completion status stay the same.',
+          editMissing: 'This item was removed. Cancel to return to the list.', editStorageFailed: 'Could not save. No changes were applied. Try again, or copy your changes before cancelling.',
+          helpEdit: 'Use Edit on any item to change its URL, path, or note. Retention and completion status stay the same.',
           added: 'Added', duplicate: 'That item is already active', pasteFailed: 'Could not read the clipboard. Paste directly into the field instead.', pasted: 'Pasted into the field', titleDetected: 'Link title detected from the clipboard',
           copiedPath: 'Path copied', copiedFolder: 'Folder copied', copiedName: 'File name copied', copied: 'Copied', copyFailed: 'Could not copy',
           open: 'Open', copyPath: 'Copy path', copyFolder: 'Folder', copyName: 'Name', done: 'Done', restore: 'Restore', remove: 'Remove',
@@ -625,6 +656,7 @@
       let query = '';
       let pipWindow = null;
       let toastTimer = 0;
+      let editingId = null;
       let persistentItems = readJson(localStore, KEYS.persistent);
       let sessionItems = readJson(sessionStore, KEYS.session);
 
@@ -773,6 +805,66 @@
         showToast(t('added'));
         return true;
       }
+      function openEdit(id) {
+        const item = findItem(id);
+        if (!item || $('#editDialog').open) return;
+        editingId = id;
+        $('#editUrlInput').value = item.url;
+        $('#editNoteInput').value = item.note || '';
+        $('#editError').textContent = '';
+        $('#editUrlInput').removeAttribute('aria-invalid');
+        $('#editDialog').showModal();
+        $('#editUrlInput').focus();
+      }
+      function closeEdit() {
+        const id = editingId;
+        editingId = null;
+        $('#editDialog').close();
+        // Rendering replaces the original button; a changed search match may hide it entirely.
+        const card = Array.from(document.querySelectorAll('#list [data-id]')).find(node => node.dataset.id === id);
+        (card?.querySelector('[data-action="edit"]') || $('#searchInput')).focus();
+      }
+      function editError(key, invalid = false) {
+        $('#editError').textContent = t(key);
+        if (invalid) {
+          $('#editUrlInput').setAttribute('aria-invalid', 'true');
+          $('#editUrlInput').focus();
+        }
+      }
+      function saveEdit() {
+        // Read the live item so PiP completion/removal while the dialog is open cannot be undone.
+        const item = findItem(editingId);
+        if (!item) { editError('editMissing'); return; }
+        const url = $('#editUrlInput').value.trim();
+        const note = $('#editNoteInput').value.trim();
+        const kind = classify(url);
+        let valid = Boolean(kind);
+        if (kind === 'web' || kind === 'file') {
+          try { new URL(url); if (/^file:\/\/$/i.test(url)) valid = false; } catch { valid = false; }
+        }
+        if (!valid) { editError('hintInvalid', true); return; }
+        const key = canonical(url);
+        if (canonical(item.url) !== key && activeItems().some(other => other.id !== item.id && canonical(other.url) === key)) {
+          editError('duplicate', true);
+          return;
+        }
+        const patch = { url, note, kind, title: canonical(item.url) === key ? item.title : '' };
+        if (Object.entries(patch).some(([key, value]) => item[key] !== value)) {
+          const session = sessionItems.includes(item);
+          const items = session ? sessionItems : persistentItems;
+          const updated = items.map(other => other === item ? { ...other, ...patch } : other);
+          // Only write the owning store, and leave the live item intact if persistence fails.
+          if (!writeJson(session ? sessionStore : localStore, session ? KEYS.session : KEYS.persistent, updated)) {
+            editError('editStorageFailed');
+            return;
+          }
+          Object.assign(item, patch);
+          render();
+          syncPip();
+        }
+        closeEdit();
+        showToast(t('saved'));
+      }
       function getVisibleItems() {
         let items = allItems().sort((a, b) => Number(a.done) - Number(b.done) || (b.createdAt || 0) - (a.createdAt || 0));
         if (filter === 'active') items = items.filter(item => !item.done && !isExpired(item));
@@ -801,6 +893,7 @@
               <div class="item-meta"><span>${esc(expiryLabel(item))}</span>${expired ? `<span class="meta-warning">${esc(t('expired'))}</span>` : ''}</div>
               <div class="item-actions">
                 ${web ? `<a class="button" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(t('open'))}</a>` : `<button class="button" type="button" data-action="copy-path">${esc(t('copyPath'))}</button><button class="button" type="button" data-action="copy-folder">${esc(t('copyFolder'))}</button><button class="button" type="button" data-action="copy-name">${esc(t('copyName'))}</button>`}
+                <button class="button" type="button" data-action="edit">${esc(t('edit'))}</button>
                 <button class="button" type="button" data-action="done">${esc(item.done ? t('restore') : t('done'))}</button>
                 <button class="button danger" type="button" data-action="remove">${esc(t('remove'))}</button>
               </div>
@@ -875,6 +968,7 @@
           const item = findItem(card.dataset.id);
           if (!item) return;
           const action = button.dataset.action;
+          if (action === 'edit' && doc === document) { openEdit(item.id); return; }
           if (action === 'done') { item.done = !item.done; persistAndRender(); return; }
           if (action === 'remove') { removeItem(item.id); persistAndRender(); return; }
           if (action === 'copy-path') { copyText(localPath(item.url), t('copiedPath')); return; }
@@ -1040,6 +1134,11 @@
         } catch { showToast(t('floatingFailed'), true); }
       }
 
+      $('#editSaveButton').addEventListener('click', saveEdit);
+      $('#editCancelButton').addEventListener('click', closeEdit);
+      $('#editDialog').addEventListener('cancel', event => { event.preventDefault(); closeEdit(); });
+      $('#editUrlInput').addEventListener('keydown', event => { if (event.key === 'Enter' && !event.isComposing) { event.preventDefault(); saveEdit(); } });
+      $('#editUrlInput').addEventListener('input', () => { $('#editUrlInput').removeAttribute('aria-invalid'); $('#editError').textContent = ''; });
       $('#languageButton').addEventListener('click', toggleLanguage);
       $('#helpButton').addEventListener('click', () => $('#helpDialog').showModal());
       $('#closeHelpButton').addEventListener('click', () => $('#helpDialog').close());

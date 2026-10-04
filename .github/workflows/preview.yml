@@ -35,6 +35,9 @@ jobs:
         with:
           node-version: 24
 
+      - name: Test reference editing
+        run: node --test tests/edit-references.test.cjs
+
       - name: Validate and stage static app
         shell: pwsh
         run: |

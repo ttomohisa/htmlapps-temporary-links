@@ -25,6 +25,7 @@ After publishing this repository with GitHub Pages:
 - `http://` and `https://` web links
 - `file:///...`, Windows paths, UNC paths, and absolute local paths
 - Optional note and retention period
+- Edit existing URLs, paths, and notes without resetting retention or completion
 - True tab-session items stored in `sessionStorage`
 - Persistent items stored in the existing `temporary-links-v1` key for compatibility
 - Active / All / Done / Expired filters
@@ -43,6 +44,14 @@ After publishing this repository with GitHub Pages:
 5. Select **Add**.
 
 Core list features work as a local HTML file. The floating window uses the Document Picture-in-Picture API, which requires a supported **secure context (HTTPS)**. For that feature, use the GitHub Pages version or another supported HTTPS host.
+
+## Editing a reference
+
+Select **Edit** on any item, including one in **Done** or **Expired**, to change its URL/path or note. **Save** updates the existing item; **Cancel** or **Escape** discards the draft. Editing leaves its retention, completion status, creation time, list order, and session/persistent storage unchanged. The separate Add form is also preserved.
+
+A changed destination cannot duplicate another active item. Note-only and unchanged saves are allowed. A clipboard-derived link title is kept for the same destination and cleared when the destination changes. Search, Markdown export, and an open floating window use the updated reference.
+
+If saving fails, the dialog keeps your draft and the existing item stays unchanged. Retry or copy your changes before cancelling. An item removed from the floating window while you edit it will not be recreated.
 
 ## Supported input
 
@@ -121,7 +130,7 @@ htmlapps-temporary-links/
 
 The app intentionally has no build step. Before publishing changes:
 
-1. Run a JavaScript syntax check against the inline script.
+1. Run `node --test tests/edit-references.test.cjs` (Node.js 24, no dependencies). This checks the inline script and edit behavior with DOM/storage/PiP doubles; it does not replace native browser testing.
 2. Verify there are no runtime CDN or network dependencies.
 3. Test web URLs, `file:///` URLs, Windows paths, UNC paths, and absolute paths.
 4. Test each retention mode and the four list filters.
