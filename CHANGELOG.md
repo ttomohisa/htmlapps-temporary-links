@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Edit existing URL/path and note from the main list, including completed and expired items.
+- Keep item identity, retention, completion, order, storage ownership and Add drafts when editing.
+- Validate changed destinations, preserve or clear clipboard titles appropriately, and synchronize search/export/floating references.
+- Preserve edit drafts on storage failure and protect against floating-window completion/removal races.
+- Add Japanese/English edit help and dependency-free Node.js behavior tests in the PR preview workflow.
+
 ## 1.0 - 2026-08-14
 
 ### Changed
