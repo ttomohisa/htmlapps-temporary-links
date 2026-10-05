@@ -4,11 +4,19 @@
 
 ### Added
 
+- Choose all items or current filtered/search results for Markdown export, with localized count and filename previews. The choice is page-only; empty current results cannot silently export all items.
+
 - Edit existing URL/path and note from the main list, including completed and expired items.
 - Keep item identity, retention, completion, order, storage ownership and Add drafts when editing.
 - Validate changed destinations, preserve or clear clipboard titles appropriately, and synchronize search/export/floating references.
 - Preserve edit drafts on storage failure and protect against floating-window completion/removal races.
 - Add Japanese/English edit help and dependency-free Node.js behavior tests in the PR preview workflow.
+
+### Fixed
+
+- Share URL validation between Add and Edit so malformed web/file URLs cannot be added while valid local references stay supported.
+- Ignore IME composition Enter (including keyCode 229) in main/floating Add and Edit, preserving drafts until a normal Enter.
+- Clean up temporary anchors/object URLs when download initiation throws, report the error, and describe successful initiation without claiming a completed disk save.
 
 ## 1.0 - 2026-08-14
 

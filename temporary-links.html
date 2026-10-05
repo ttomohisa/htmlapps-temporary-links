@@ -243,7 +243,8 @@
       z-index: 20;
       top: calc(100% + 7px);
       right: 0;
-      width: 190px;
+      width: 254px;
+      max-width: calc(100vw - 32px);
       padding: 7px;
       border: 1px solid var(--line);
       border-radius: 11px;
@@ -253,6 +254,11 @@
       gap: 5px;
     }
     .more-menu .button { width: 100%; min-height: 34px; justify-content: flex-start; text-align: left; font-size: 11px; }
+    .export-tools { display: grid; gap: 6px; padding: 3px 3px 8px; border-bottom: 1px solid var(--line); }
+    .export-tools label { font-size: 11px; font-weight: 750; color: var(--muted); }
+    .export-tools .field { width: 100%; min-width: 0; min-height: 34px; font-size: 11px; }
+    .export-preview, .export-empty-hint { margin: 0; font-size: 10px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+    .export-preview span { display: block; }
     .search-wrap { margin: 0 0 12px; }
     .search-wrap .field { min-height: 40px; background: var(--surface); }
     .list { display: grid; gap: 10px; }
@@ -487,7 +493,16 @@
         <details class="more-tools" id="moreTools">
           <summary class="button compact" data-i18n="moreActions">その他</summary>
           <div class="more-menu">
-            <button class="button compact" id="exportButton" type="button" data-i18n="exportMarkdown">Markdown保存</button>
+            <div class="export-tools">
+              <label for="exportScope" id="exportScopeLabel" data-i18n="exportScopeLabel">保存する範囲</label>
+              <select class="field" id="exportScope" aria-describedby="exportPreview exportEmptyHint">
+                <option value="all" data-i18n="exportAll">すべての項目</option>
+                <option value="visible" data-i18n="exportVisible">現在の表示結果</option>
+              </select>
+              <p class="export-preview" id="exportPreview" aria-live="polite" aria-atomic="true"><span id="exportSummary"></span><span id="exportFilename"></span></p>
+              <p class="export-empty-hint" id="exportEmptyHint" hidden></p>
+              <button class="button compact" id="exportButton" type="button" data-i18n="exportMarkdown" aria-describedby="exportPreview exportEmptyHint">Markdown保存</button>
+            </div>
             <button class="button compact" id="clearDoneButton" type="button" data-i18n="clearDone">完了を削除</button>
             <button class="button compact" id="clearExpiredButton" type="button" data-i18n="clearExpired">期限切れを削除</button>
             <button class="button compact danger" id="clearAllButton" type="button" data-i18n="clearAll">すべて削除</button>
@@ -602,7 +617,9 @@
           emptyActiveTitle: '使用中のリンクはありません', emptyActiveBody: '上の入力欄から、いま必要な参照先を追加できます。', emptyViewTitle: '該当する項目はありません', emptyViewBody: '絞り込みや検索条件を変更してください。',
           confirmDone: '完了した項目を {count} 件削除しますか？', confirmExpired: '期限切れの項目を {count} 件削除しますか？', confirmAll: '保存している Temporary Links をすべて削除しますか？',
           noDone: '完了した項目はありません', noExpired: '期限切れの項目はありません', clearedDone: '完了した項目を削除しました', clearedExpired: '期限切れの項目を削除しました', clearedAll: 'すべて削除しました',
-          exported: 'Markdownを保存しました', floatingFailed: 'フローティングウィンドウを開けませんでした', floatingNotSupported: 'この環境ではフローティング表示を利用できません',
+          exportScopeLabel: '保存する範囲', exportAll: 'すべての項目', exportVisible: '現在の表示結果', exportCount: '{count} 件', exportCountOne: '{count} 件',
+          exportVisibleEmpty: '保存する項目がありません。表示や検索条件を変更してください。', exportFailed: 'Markdownのダウンロードを開始できませんでした。もう一度お試しください。',
+          exported: 'Markdownのダウンロードを開始しました', floatingFailed: 'フローティングウィンドウを開けませんでした', floatingNotSupported: 'この環境ではフローティング表示を利用できません',
           pipPlaceholder: 'URL / パスを追加', pipAdd: '追加', pipEmpty: '使用中の項目はありません',
           webKind: 'Web', localKind: 'Local'
         },
@@ -637,7 +654,9 @@
           emptyActiveTitle: 'No active links', emptyActiveBody: 'Add a reference you need right now using the field above.', emptyViewTitle: 'No matching items', emptyViewBody: 'Change the filter or search terms.',
           confirmDone: 'Remove {count} completed item(s)?', confirmExpired: 'Remove {count} expired item(s)?', confirmAll: 'Remove all saved Temporary Links?',
           noDone: 'No completed items', noExpired: 'No expired items', clearedDone: 'Completed items removed', clearedExpired: 'Expired items removed', clearedAll: 'All items removed',
-          exported: 'Markdown saved', floatingFailed: 'Could not open the floating window', floatingNotSupported: 'Floating window is not available in this environment',
+          exportScopeLabel: 'Export scope', exportAll: 'All items', exportVisible: 'Current results', exportCount: '{count} items', exportCountOne: '{count} item',
+          exportVisibleEmpty: 'No items to export. Change the filter or search.', exportFailed: 'Could not start the Markdown download. Try again.',
+          exported: 'Markdown download started', floatingFailed: 'Could not open the floating window', floatingNotSupported: 'Floating window is not available in this environment',
           pipPlaceholder: 'Add URL / path', pipAdd: 'Add', pipEmpty: 'No active items',
           webKind: 'Web', localKind: 'Local'
         }
@@ -654,6 +673,7 @@
       let language = readStorage(localStore, KEYS.language) || (navigator.language?.toLowerCase().startsWith('en') ? 'en' : 'ja');
       let filter = 'active';
       let query = '';
+      let exportScope = 'all';
       let pipWindow = null;
       let toastTimer = 0;
       let editingId = null;
@@ -706,6 +726,16 @@
         if (/^file:\/\//i.test(value)) return 'file';
         if (/^[a-z]:[\\/]/i.test(value) || /^\\\\/.test(value) || /^\/(?!\/)/.test(value)) return 'path';
         return null;
+      }
+      function isValidReference(raw, kind = classify(raw)) {
+        if (!kind) return false;
+        if (kind === 'web' || kind === 'file') {
+          try { new URL(raw); return !/^file:\/\/$/i.test(raw); } catch { return false; }
+        }
+        return true;
+      }
+      function isSubmitEnter(event) {
+        return event.key === 'Enter' && !event.isComposing && event.keyCode !== 229;
       }
       function localPath(raw) {
         const value = String(raw || '').trim();
@@ -786,7 +816,7 @@
       function addItem(raw, note, retention, pastedTitle = '') {
         const url = String(raw || '').trim();
         const kind = classify(url);
-        if (!kind) { showToast(t('hintInvalid'), true); return false; }
+        if (!isValidReference(url, kind)) { showToast(t('hintInvalid'), true); return false; }
         const key = canonical(url);
         if (activeItems().some(item => canonical(item.url) === key)) { showToast(t('duplicate')); return false; }
         const item = {
@@ -838,11 +868,7 @@
         const url = $('#editUrlInput').value.trim();
         const note = $('#editNoteInput').value.trim();
         const kind = classify(url);
-        let valid = Boolean(kind);
-        if (kind === 'web' || kind === 'file') {
-          try { new URL(url); if (/^file:\/\/$/i.test(url)) valid = false; } catch { valid = false; }
-        }
-        if (!valid) { editError('hintInvalid', true); return; }
+        if (!isValidReference(url, kind)) { editError('hintInvalid', true); return; }
         const key = canonical(url);
         if (canonical(item.url) !== key && activeItems().some(other => other.id !== item.id && canonical(other.url) === key)) {
           editError('duplicate', true);
@@ -913,14 +939,15 @@
           $('#list').innerHTML = items.map(itemCard).join('');
         }
         updatePipButton();
+        updateExportPreview();
       }
       function updateInputHint() {
         const value = $('#urlInput').value.trim();
         const hint = $('#inputHint');
         if (!value) { hint.textContent = t('hintEmpty'); hint.className = 'input-hint'; return; }
         const kind = classify(value);
-        if (kind === 'web') { hint.textContent = t('hintWeb'); hint.className = 'input-hint ok'; return; }
-        if (kind === 'file' || kind === 'path') { hint.textContent = t('hintLocal'); hint.className = 'input-hint ok'; return; }
+        if (kind === 'web' && isValidReference(value, kind)) { hint.textContent = t('hintWeb'); hint.className = 'input-hint ok'; return; }
+        if ((kind === 'file' || kind === 'path') && isValidReference(value, kind)) { hint.textContent = t('hintLocal'); hint.className = 'input-hint ok'; return; }
         hint.textContent = t('hintInvalid');
         hint.className = 'input-hint error';
       }
@@ -1047,17 +1074,45 @@
         });
         return `# Temporary Links\n\n${lines.join('\n') || (language === 'ja' ? '_項目はありません。_' : '_No items._')}\n`;
       }
+      function exportItems(scope) {
+        return scope === 'visible' ? getVisibleItems() : allItems();
+      }
+      function exportFilename(scope) {
+        return `temporary-links-${scope === 'visible' ? 'visible-' : ''}${new Date().toISOString().slice(0, 10)}.md`;
+      }
+      function updateExportPreview() {
+        const count = exportItems(exportScope).length;
+        const empty = exportScope === 'visible' && count === 0;
+        $('#exportScope').value = exportScope;
+        $('#exportSummary').textContent = t(count === 1 ? 'exportCountOne' : 'exportCount', { count: new Intl.NumberFormat(language).format(count) });
+        $('#exportFilename').textContent = exportFilename(exportScope);
+        $('#exportEmptyHint').textContent = empty ? t('exportVisibleEmpty') : '';
+        $('#exportEmptyHint').hidden = !empty;
+        $('#exportButton').disabled = empty;
+      }
       function exportMarkdown() {
-        const blob = new Blob([markdownFor(allItems())], { type: 'text/markdown;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const anchor = document.createElement('a');
-        anchor.href = url;
-        anchor.download = `temporary-links-${new Date().toISOString().slice(0, 10)}.md`;
-        document.body.append(anchor);
-        anchor.click();
-        anchor.remove();
-        window.setTimeout(() => URL.revokeObjectURL(url), 0);
-        showToast(t('exported'));
+        // Resolve the scope and live list once at the click; never fall back to all for an empty view.
+        const scope = exportScope;
+        const items = exportItems(scope);
+        updateExportPreview();
+        if (scope === 'visible' && !items.length) return;
+        let url;
+        let anchor;
+        try {
+          const blob = new Blob([markdownFor(items)], { type: 'text/markdown;charset=utf-8' });
+          url = URL.createObjectURL(blob);
+          anchor = document.createElement('a');
+          anchor.href = url;
+          anchor.download = exportFilename(scope);
+          document.body.append(anchor);
+          anchor.click();
+          showToast(t('exported'));
+        } catch {
+          showToast(t('exportFailed'), true);
+        } finally {
+          anchor?.remove();
+          if (url) window.setTimeout(() => URL.revokeObjectURL(url), 0);
+        }
       }
       function clearDone() {
         const count = allItems().filter(item => item.done).length;
@@ -1127,7 +1182,7 @@
             if (addItem(pipInput.value, '', 'session', '')) pipInput.value = '';
           };
           pipWindow.document.querySelector('#pipAdd').addEventListener('click', addFromPip);
-          pipInput.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); addFromPip(); } });
+          pipInput.addEventListener('keydown', event => { if (isSubmitEnter(event)) { event.preventDefault(); addFromPip(); } });
           pipWindow.addEventListener('pagehide', () => { pipWindow = null; updatePipButton(); });
           syncPip();
           updatePipButton();
@@ -1137,7 +1192,7 @@
       $('#editSaveButton').addEventListener('click', saveEdit);
       $('#editCancelButton').addEventListener('click', closeEdit);
       $('#editDialog').addEventListener('cancel', event => { event.preventDefault(); closeEdit(); });
-      $('#editUrlInput').addEventListener('keydown', event => { if (event.key === 'Enter' && !event.isComposing) { event.preventDefault(); saveEdit(); } });
+      $('#editUrlInput').addEventListener('keydown', event => { if (isSubmitEnter(event)) { event.preventDefault(); saveEdit(); } });
       $('#editUrlInput').addEventListener('input', () => { $('#editUrlInput').removeAttribute('aria-invalid'); $('#editError').textContent = ''; });
       $('#languageButton').addEventListener('click', toggleLanguage);
       $('#helpButton').addEventListener('click', () => $('#helpDialog').showModal());
@@ -1145,12 +1200,14 @@
       $('#helpDialog').addEventListener('click', event => { if (event.target === $('#helpDialog')) $('#helpDialog').close(); });
       $('#urlInput').addEventListener('input', () => { delete $('#urlInput').dataset.pastedTitle; updateInputHint(); });
       $('#urlInput').addEventListener('paste', handlePaste);
-      $('#urlInput').addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); mainAdd(); } });
+      $('#urlInput').addEventListener('keydown', event => { if (isSubmitEnter(event)) { event.preventDefault(); mainAdd(); } });
       $('#addButton').addEventListener('click', mainAdd);
       $('#pasteButton').addEventListener('click', pasteFromClipboard);
       $('#searchInput').addEventListener('input', event => { query = event.target.value; render(); });
       $('#filterRow').addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filter = button.dataset.filter; render(); });
+      $('#exportScope').addEventListener('change', event => { exportScope = event.target.value === 'visible' ? 'visible' : 'all'; updateExportPreview(); });
       const moreTools = $('#moreTools');
+      moreTools.addEventListener('toggle', () => { if (moreTools.open) updateExportPreview(); });
       document.addEventListener('click', event => {
         if (moreTools.open && !moreTools.contains(event.target)) moreTools.removeAttribute('open');
       });
