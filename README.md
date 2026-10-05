@@ -31,7 +31,7 @@ After publishing this repository with GitHub Pages:
 - Active / All / Done / Expired filters
 - Search by title, URL, path, or note
 - Copy path / parent folder / file name for local references
-- Markdown export
+- Markdown export for all items or the current filtered/search results, with a count and filename preview
 - Optional always-on-top floating window using Document Picture-in-Picture
 - Keyboard-friendly and responsive layout
 
@@ -52,6 +52,17 @@ Select **Edit** on any item, including one in **Done** or **Expired**, to change
 A changed destination cannot duplicate another active item. Note-only and unchanged saves are allowed. A clipboard-derived link title is kept for the same destination and cleared when the destination changes. Search, Markdown export, and an open floating window use the updated reference.
 
 If saving fails, the dialog keeps your draft and the existing item stays unchanged. Retry or copy your changes before cancelling. An item removed from the floating window while you edit it will not be recreated.
+
+## Exporting Markdown
+
+Open **More**, choose **All items** or **Current results**, check the count and filename, then select **Save Markdown**.
+
+- **All items** is the default on every page load. It includes both storage areas, completed and expired references, and keeps the existing export order and `temporary-links-YYYY-MM-DD.md` filename.
+- **Current results** includes exactly the current filter and search results in their displayed order. Its filename is `temporary-links-visible-YYYY-MM-DD.md`.
+- An empty current result disables Save with an explanation; it never exports the full list instead. All-items export still allows an empty Markdown list.
+- The choice lasts only while this page is open. Preview counts update when the list, search, filter or language changes. Save reads the current list at the click.
+
+The success message means the browser download was started, not that the file reached disk. A detected download-start error offers a retry and releases the temporary download resources.
 
 ## Supported input
 
@@ -130,13 +141,13 @@ htmlapps-temporary-links/
 
 The app intentionally has no build step. Before publishing changes:
 
-1. Run `node --test tests/edit-references.test.cjs` (Node.js 24, no dependencies). This checks the inline script and edit behavior with DOM/storage/PiP doubles; it does not replace native browser testing.
+1. Run `node --test` (Node.js 24, no dependencies). This checks the inline script, editing, export scope, validation and composition-Enter guards with controlled DOM/storage/PiP/download doubles; it does not replace native browser testing.
 2. Verify there are no runtime CDN or network dependencies.
 3. Test web URLs, `file:///` URLs, Windows paths, UNC paths, and absolute paths.
 4. Test each retention mode and the four list filters.
 5. Test Japanese and English UI.
 6. Test local-file core behavior and HTTPS floating-window behavior separately.
-7. Test Markdown export and destructive-action confirmations.
+7. Test both Markdown export scopes, zero matches, native IME input, actual downloads and destructive-action confirmations.
 
 ## License
 
