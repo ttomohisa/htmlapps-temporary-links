@@ -18,6 +18,18 @@
 - Ignore IME composition Enter (including keyCode 229) in main/floating Add and Edit, preserving drafts until a normal Enter.
 - Clean up temporary anchors/object URLs when download initiation throws, report the error, and describe successful initiation without claiming a completed disk save.
 
+## 1.0.1 - 2026-10-07
+
+### Changed
+
+- Keep the language target labels as EN / JA and localize their accessible name and tooltip.
+- Standardize the local-processing badge as 完全ローカル処理 / Fully local processing. Explicit navigation to saved web links is unchanged.
+- Normalize the previous two-part version `1.0` to the `1.0.0` baseline and increment its patch once to `1.0.1`; no new build/configuration layer is introduced.
+
+### Verification
+
+- Add runtime header, Help-control and language-roundtrip regressions using controlled DOM/storage doubles. Native browser focus, dialogs and actual downloads remain separate browser checks.
+
 ## 1.0 - 2026-08-14
 
 ### Changed

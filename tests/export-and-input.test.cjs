@@ -41,11 +41,19 @@ function makeDocument() {
     if (selector.startsWith('#')) { const id = selector.slice(1); if (!nodes.has(id)) nodes.set(id, node(id)); return nodes.get(id); }
     return null;
   };
-  doc.querySelectorAll = selector => selector === '[data-i18n]' ? [...nodes.values()].filter(node => node.dataset.i18n) : [];
-  for (const tag of html.matchAll(/<[^>]+\bid="([^"]+)"[^>]*>/g)) {
-    const element = doc.querySelector('#' + tag[1]);
-    const key = tag[0].match(/data-i18n="([^"]+)"/);
-    if (key) element.dataset.i18n = key[1];
+  const dataName = value => value.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+  doc.querySelectorAll = selector => {
+    const key = selector.match(/^\[data-([a-z0-9-]+)\]$/)?.[1];
+    return key ? [...nodes.values()].filter(element => element.dataset[dataName(key)]) : [];
+  };
+  for (const tag of html.split('<script>')[0].matchAll(/<[a-z][^>]*>/g)) {
+    const id = tag[0].match(/\bid="([^"]+)"/)?.[1];
+    if (!id && !tag[0].includes('data-i18n')) continue;
+    const element = doc.querySelector('#' + (id || `translated-${nodes.size}`));
+    for (const [, name, value] of tag[0].matchAll(/([a-z0-9-]+)="([^"]*)"/g)) {
+      if (name.startsWith('data-')) element.dataset[dataName(name.slice(5))] = value;
+      else if (name !== 'style') element.setAttribute(name, value);
+    }
   }
   return doc;
 }
@@ -375,3 +383,68 @@ for (const stage of ['Blob', 'createObjectURL', 'createElement', 'href', 'downlo
     assert.equal(h.document.querySelector('#toast').textContent, h.app.translations.en.exported);
   });
 }
+
+
+// Removing target attributes, localizing EN/JA itself, resetting state on language
+// changes, or reverting the single patch release must fail these regressions.
+test('header uses stable EN/JA targets and localized target, privacy and Help text', () => {
+  const h = launch();
+  const language = h.document.querySelector('#languageButton');
+  const help = h.document.querySelector('#helpButton');
+  const localBadge = h.document.querySelectorAll('[data-i18n]').find(node => node.dataset.i18n === 'localBadge');
+  for (const [lang, target, label, privacy, helpTitle] of [
+    ['en', 'JA', 'Switch to Japanese', 'Fully local processing', 'How to use & notes'],
+    ['ja', 'EN', '英語に切り替え', '完全ローカル処理', '使い方と注意事項'],
+    ['en', 'JA', 'Switch to Japanese', 'Fully local processing', 'How to use & notes']
+  ]) {
+    assert.equal(h.document.documentElement.lang, lang);
+    assert.equal(language.textContent, target);
+    assert.equal(language['aria-label'], label);
+    assert.equal(language.title, label);
+    assert.equal(localBadge.textContent, privacy);
+    assert.equal(help['aria-label'], helpTitle);
+    assert.equal(help.title, helpTitle);
+    help.click();
+    assert.equal(h.document.querySelector('#helpDialog').open, true);
+    h.document.querySelector('#closeHelpButton').click();
+    assert.equal(h.document.querySelector('#helpDialog').open, false);
+    language.click();
+  }
+});
+
+test('language roundtrip preserves saved references, edit/add drafts, view and export scope', () => {
+  const records = [item('one'), item('done', {done: true})];
+  const tabRecords = [item('tab', {expiresAt: 'session'})];
+  const h = launch({persistent: records, session: tabRecords});
+  h.app.setView('active', 'one'); scope(h, 'visible'); h.app.render();
+  h.document.querySelector('#urlInput').value = 'https://draft.example/';
+  h.document.querySelector('#noteInput').value = '未保存のメモ';
+  h.start('one');
+  h.document.querySelector('#editUrlInput').value = 'https://edit.example/';
+  h.document.querySelector('#editNoteInput').value = 'draft note';
+  for (let i = 0; i < 2; i++) {
+    h.document.querySelector('#languageButton').click();
+    assert.deepEqual(h.read(), records);
+    assert.deepEqual(h.readSession(), tabRecords);
+    assert.deepEqual(plain(h.app.getVisibleItems().map(item => item.id)), ['one']);
+    assert.equal(h.document.querySelector('#exportScope').value, 'visible');
+    assert.equal(h.document.querySelector('#urlInput').value, 'https://draft.example/');
+    assert.equal(h.document.querySelector('#noteInput').value, '未保存のメモ');
+    assert.equal(h.document.querySelector('#editDialog').open, true);
+    assert.equal(h.document.querySelector('#editUrlInput').value, 'https://edit.example/');
+    assert.equal(h.document.querySelector('#editNoteInput').value, 'draft note');
+  }
+});
+
+test('single-file release normalizes prior v1.0 and increments its patch once', () => {
+  assert.equal(html.match(/class="version-badge">([^<]+)<\/span>/)?.[1], 'v1.0.1');
+});
+
+
+test('privacy badge describes the local processing boundary in both languages', () => {
+  const h = launch();
+  const badge = h.document.querySelectorAll('[data-i18n]').find(node => node.dataset.i18n === 'localBadge');
+  assert.equal(badge.textContent, 'Fully local processing');
+  h.document.querySelector('#languageButton').click();
+  assert.equal(badge.textContent, '完全ローカル処理');
+});

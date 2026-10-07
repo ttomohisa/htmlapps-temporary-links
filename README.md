@@ -21,7 +21,7 @@ After publishing this repository with GitHub Pages:
 - No external runtime dependencies
 - Content Security Policy blocks runtime network connections from the app
 - Links, notes, and paths stay in browser storage
-- Japanese / English UI switch
+- Japanese / English UI switch with stable **EN / JA** target labels and localized accessible labels/tooltips
 - `http://` and `https://` web links
 - `file:///...`, Windows paths, UNC paths, and absolute local paths
 - Optional note and retention period
@@ -136,6 +136,10 @@ htmlapps-temporary-links/
 └── assets/
     └── social-preview.png
 ```
+
+## Release version
+
+The earlier `v1.0` badge and changelog release are treated as `1.0.0`; this patch is `v1.0.1`. The app remains a single maintained HTML file with no build step. Its **Fully local processing** badge describes in-app processing; opening a saved web link still navigates to that destination.
 
 ## Development checks
 
