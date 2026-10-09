@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 - 2026-10-09
+
+- Added a genuine English screenshot from the v1.0.2 PR preview using a synthetic example.com reference and sample note.
+- Added explicit standalone-output and existing network-blocking metadata for catalog health checks.
+- Kept application behavior, entrypoints, and network permissions unchanged.
+
 ## Unreleased
 
 ### Added

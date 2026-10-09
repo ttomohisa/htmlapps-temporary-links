@@ -1,0 +1,14 @@
+{
+  "name": "Temporary Links",
+  "slug": "temporary-links",
+  "version": "1.0.2",
+  "languages": [
+    "ja",
+    "en"
+  ],
+  "license": "MIT",
+  "build": {
+    "output": "temporary-links.html",
+    "blockRuntimeNetwork": true
+  }
+}
