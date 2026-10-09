@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2 - 2026-10-09
+
+- Added explicit standalone-output and existing network-blocking metadata for catalog health checks.
+- Kept application behavior, entrypoints, and network permissions unchanged.
+
 ## Unreleased
 
 ### Added

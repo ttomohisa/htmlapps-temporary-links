@@ -139,7 +139,7 @@ htmlapps-temporary-links/
 
 ## Release version
 
-The earlier `v1.0` badge and changelog release are treated as `1.0.0`; this patch is `v1.0.1`. The app remains a single maintained HTML file with no build step. Its **Fully local processing** badge describes in-app processing; opening a saved web link still navigates to that destination.
+The earlier `v1.0` badge and changelog release are treated as `1.0.0`; this patch is `v1.0.2`. The app remains a single maintained HTML file with no build step. Its **Fully local processing** badge describes in-app processing; opening a saved web link still navigates to that destination.
 
 ## Development checks
 
@@ -156,3 +156,7 @@ The app intentionally has no build step. Before publishing changes:
 ## License
 
 MIT License. See [LICENSE](LICENSE).
+
+## Catalog metadata
+
+`app.config.json` describes the existing standalone artifact and its network-blocking CSP. Metadata does not add runtime network permissions.
