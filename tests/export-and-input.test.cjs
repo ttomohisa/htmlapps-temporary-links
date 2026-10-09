@@ -437,7 +437,7 @@ test('language roundtrip preserves saved references, edit/add drafts, view and e
 });
 
 test('single-file release normalizes prior v1.0 and increments its patch once', () => {
-  assert.equal(html.match(/class="version-badge">([^<]+)<\/span>/)?.[1], 'v1.0.3');
+  assert.equal(html.match(/class="version-badge">([^<]+)<\/span>/)?.[1], 'v1.0.4');
 });
 
 
