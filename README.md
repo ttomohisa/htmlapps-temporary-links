@@ -139,7 +139,7 @@ htmlapps-temporary-links/
 
 ## Release version
 
-The earlier `v1.0` badge and changelog release are treated as `1.0.0`; this patch is `v1.0.3`. The app remains a single maintained HTML file with no build step. Its **Fully local processing** badge describes in-app processing; opening a saved web link still navigates to that destination.
+The earlier `v1.0` badge and changelog release are treated as `1.0.0`; this patch is `v1.0.4`. The app remains a single maintained HTML file with no build step. Its **Fully local processing** badge describes in-app processing; opening a saved web link still navigates to that destination.
 
 ## Development checks
 

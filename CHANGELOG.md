@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.4 - 2026-10-10
+
+- Replace the canonical SVG, header icon and embedded favicon with the supplied redesigned artwork, preserving the exact #16624f color and 64×64 rx=16 background.
+- Verify artwork preservation and consistent icons across shipped HTML copies.
+
 ## 1.0.3 - 2026-10-09
 
 - Normalize the app icon background to `#16624f` with 25% corner radii, and keep the asset, header and favicon consistent without changing the artwork.

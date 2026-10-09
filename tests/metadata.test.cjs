@@ -10,7 +10,7 @@ test('app metadata describes the existing standalone output and network policy',
   const config = JSON.parse(read('app.config.json'));
   assert.equal(config.build?.output, 'temporary-links.html');
   assert.equal(config.build?.blockRuntimeNetwork, true);
-  assert.equal(config.version, '1.0.3');
+  assert.equal(config.version, '1.0.4');
   assert.ok(read(config.build.output).includes(`v${config.version}</span>`));
   assert.match(read('temporary-links.html'), /connect-src 'none'/);
 });
