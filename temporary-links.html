@@ -8,7 +8,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob:; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data: blob:; media-src 'self' data: blob:; worker-src 'self' blob:; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
   <title>Temporary Links</title>
   <meta name="description" content="作業中だけ必要なWebリンクやローカルパスを、ブラウザー内に一時保存する単一HTMLツール。">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2316624f'/%3E%3Cpath d='M26 20h-5a9 9 0 0 0 0 18h8a9 9 0 0 0 6.4-2.7' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3Cpath d='M38 44h5a9 9 0 0 0 0-18h-8a9 9 0 0 0-6.4 2.7M24 32h16' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9IiMxNjYyNGYiLz4KICA8c3ZnIHg9IjE0LjMyIiB5PSIxNC4zMiIgd2lkdGg9IjM1LjM2IiBoZWlnaHQ9IjM1LjM2IiB2aWV3Qm94PSIwIDAgMjQgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmZiIgc3Ryb2tlLXdpZHRoPSIxLjkiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+CiAgICA8cGF0aCBkPSJNOS41IDdIN2E1IDUgMCAwIDAgMCAxMGg0YTUgNSAwIDAgMCAzLjUtMS40Ii8+CiAgICA8cGF0aCBkPSJNMTQuNSAxN0gxN2E1IDUgMCAwIDAgMC0xMGgtNEE1IDUgMCAwIDAgOS41IDguNE04LjUgMTJoNyIvPgogIDwvc3ZnPgo8L3N2Zz4K">
   <style>
     :root {
       color-scheme: light;
@@ -76,12 +76,12 @@
       width: 38px;
       height: 38px;
       flex: 0 0 auto;
-      border-radius: 11px;
-      background: var(--accent);
+      border-radius:25%;
+      background:transparent;
       color: #fff;
       box-shadow: var(--shadow-sm);
     }
-    .brand-mark svg { width: 21px; height: 21px; display: block; }
+    .brand-mark > svg { width:100%; height:100%; display: block; }
     .brand-copy { min-width: 0; }
     .brand-name { margin: 0; font-size: 17px; line-height: 1.2; letter-spacing: .01em; white-space: nowrap; }
     .version-badge {
@@ -375,7 +375,7 @@
     @media (max-width: 560px) {
       :root { --header-height: 58px; }
       .header-inner { padding-block: 8px; }
-      .brand-mark { width: 34px; height: 34px; border-radius: 10px; }
+      .brand-mark { width: 34px; height: 34px; border-radius:25%; }
       .brand-name { font-size: 15px; }
       .brand-meta { display: none; }
       .header-actions { gap: 11px; }
@@ -405,10 +405,16 @@
     <div class="header-inner">
       <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 7H7a5 5 0 0 0 0 10h4a5 5 0 0 0 3.5-1.4"/><path d="M14.5 17H17a5 5 0 0 0 0-10h-4A5 5 0 0 0 9.5 8.4M8.5 12h7"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="16" fill="#16624f"/>
+  <svg x="14.32" y="14.32" width="35.36" height="35.36" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9.5 7H7a5 5 0 0 0 0 10h4a5 5 0 0 0 3.5-1.4"/>
+    <path d="M14.5 17H17a5 5 0 0 0 0-10h-4A5 5 0 0 0 9.5 8.4M8.5 12h7"/>
+  </svg>
+</svg>
         </div>
         <div class="brand-copy">
-          <p class="brand-name">Temporary Links <span class="version-badge">v1.0.2</span></p>
+          <p class="brand-name">Temporary Links <span class="version-badge">v1.0.3</span></p>
           <p class="brand-meta" data-i18n="brandMeta">単一HTML・ローカル保存・フローティング表示</p>
         </div>
       </div>
