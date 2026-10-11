@@ -45,10 +45,6 @@ After publishing this repository with GitHub Pages:
 
 Core list features work as a local HTML file. The floating window uses the Document Picture-in-Picture API, which requires a supported **secure context (HTTPS)**. For that feature, use the GitHub Pages version or another supported HTTPS host.
 
-## Dialog scrolling
-
-While **Help** or **Edit** is open, the background page stays still. On a short screen, scroll inside the dialog to reach its remaining content and actions. Closing the dialog restores normal page scrolling. Help's Close button stays above its scrolling content; Edit's Save and Cancel remain inside it.
-
 ## Editing a reference
 
 Select **Edit** on any item, including one in **Done** or **Expired**, to change its URL/path or note. **Save** updates the existing item; **Cancel** or **Escape** discards the draft. Editing leaves its retention, completion status, creation time, list order, and session/persistent storage unchanged. The separate Add form is also preserved.

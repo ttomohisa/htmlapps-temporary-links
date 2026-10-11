@@ -441,14 +441,13 @@ test('single-file release advances to the modal-scroll patch', () => {
   assert.match(source, /const VERSION = '1\.0\.5';/);
 });
 
-test('Help explains inner scrolling and background locking in both languages', () => {
+test('Help omits layout implementation commentary in both languages', () => {
   const h = launch();
   const text = h.document.querySelectorAll('[data-i18n]').find(node => node.dataset.i18n === 'helpDialogs');
-  assert.ok(text, 'the Help dialog includes the scroll explanation');
+  assert.equal(text, undefined);
   for (const lang of ['en', 'ja', 'en']) {
     assert.equal(h.document.documentElement.lang, lang);
-    assert.equal(text.textContent, h.app.translations[lang].helpDialogs);
-    assert.match(text.textContent, lang === 'en' ? /background page stays still/ : /背景ページを固定/);
+    assert.equal(h.app.translations[lang].helpDialogs, undefined);
     h.document.querySelector('#languageButton').click();
   }
 });
