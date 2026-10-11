@@ -436,8 +436,45 @@ test('language roundtrip preserves saved references, edit/add drafts, view and e
   }
 });
 
-test('single-file release normalizes prior v1.0 and increments its patch once', () => {
-  assert.equal(html.match(/class="version-badge">([^<]+)<\/span>/)?.[1], 'v1.0.4');
+test('single-file release advances to the modal-scroll patch', () => {
+  assert.equal(html.match(/class="version-badge">([^<]+)<\/span>/)?.[1], 'v1.0.5');
+  assert.match(source, /const VERSION = '1\.0\.5';/);
+});
+
+test('Help explains inner scrolling and background locking in both languages', () => {
+  const h = launch();
+  const text = h.document.querySelectorAll('[data-i18n]').find(node => node.dataset.i18n === 'helpDialogs');
+  assert.ok(text, 'the Help dialog includes the scroll explanation');
+  for (const lang of ['en', 'ja', 'en']) {
+    assert.equal(h.document.documentElement.lang, lang);
+    assert.equal(text.textContent, h.app.translations[lang].helpDialogs);
+    assert.match(text.textContent, lang === 'en' ? /background page stays still/ : /背景ページを固定/);
+    h.document.querySelector('#languageButton').click();
+  }
+});
+
+test('repeated Help Close and backdrop dismissal preserve references and the Add draft', () => {
+  const records = [item('one')];
+  const h = launch({ persistent: records });
+  const dialog = h.document.querySelector('#helpDialog');
+  h.document.querySelector('#urlInput').value = 'https://example.com/unsaved';
+  h.document.querySelector('#noteInput').value = '未保存のメモ';
+  for (let i = 0; i < 2; i++) {
+    h.document.querySelector('#helpButton').click();
+    assert.equal(dialog.open, true);
+    dialog.dispatch('click', { target: h.document.querySelector('#helpTitle') });
+    assert.equal(dialog.open, true, 'clicking Help content does not dismiss it');
+    h.document.querySelector('#closeHelpButton').click();
+    assert.equal(dialog.open, false);
+    h.document.querySelector('#helpButton').click();
+    assert.equal(dialog.open, true);
+    dialog.dispatch('click');
+    assert.equal(dialog.open, false);
+  }
+  assert.deepEqual(h.read(), records);
+  assert.equal(h.local.writes + h.tab.writes, 0);
+  assert.equal(h.document.querySelector('#urlInput').value, 'https://example.com/unsaved');
+  assert.equal(h.document.querySelector('#noteInput').value, '未保存のメモ');
 });
 
 

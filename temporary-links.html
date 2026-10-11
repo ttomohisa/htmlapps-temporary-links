@@ -35,6 +35,7 @@
     }
     * { box-sizing: border-box; }
     html { min-height: 100%; background: var(--bg); scroll-behavior: smooth; }
+    html:has(dialog:modal), body:has(dialog:modal) { overflow: hidden; }
     body {
       margin: 0;
       min-height: 100vh;
@@ -406,7 +407,7 @@
       <div class="brand">
         <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><rect width="64" height="64" rx="16" fill="#16624f"/><path d="m37.15 31.9.77 4.85.97.1.61-2.45 1.07-1.89zm6.54-8.98-.56 3.06.3.25 2.66.41.1-.25zm7.14-2.4-.92-.51-12.86-2.15-.71.1-.61.46-.51 2.05 1.48 9.13 1.53-7.76.25-.46.56-.35 5.36.92 2.76 3.87.2.77-.76 3.78-2.1.35-1.43.62-.86.61-1.33 1.53-.56 1.07-.41 1.48.05 2.3h-2.65l-.56.2-.36.36-.87 1.84-1.02.71h-9.19l-.91-.56-.97-1.99-.67-.51-9.29-.1-.76-.61-.21-.52.06-.56 2.04-2.34-.16-2.2-1.02.15-2.75 3.12-.51.97v7.81l.56 1.68 1.32 1.38 1.59.56h36.69l1.48-.51 1.33-1.28.61-1.58.15-7.96-.96-1.84-1.28-1.78-2.25-1.64 1.74-9.39v-.61zm-4.39 11.43a5.14 5.14 0 1 1 0 10.28 5.14 5.14 0 1 1 0-10.28zm-.4 1.68-.31.51v3.53l.2.4.41.21h2.86l.31-.16.25-.4-.25-.77-2.3-.2-.05-2.81-.46-.41zm-13.78-17.25-.72-.3-.71.05-15.93 3.42-.92.56-.3.66v.67l1.84 8.88 1.07 6.48 6.89.1 1.07.71.92 1.84.35.21h8.22l.36-.31.87-1.74 1.02-.71.1-.26-3.52-19.29zm-7.05 9.65.61.46.31.56v.31l-.56.61-.61.15-1.13-.51h-.66l-.61.26-2.3 2.39-.25.82.4 1.07.72.41 1.12-.1 1.18-1.12 1.88.25.16.21-.41.71-1.38 1.38-1.27.61h-1.69l-1.28-.61-1.02-1.23-.35-1.22.1-1.23.51-1.12 2.55-2.7.97-.57 1.38-.25zm4.03-4.75 1.13.92.76 1.58v1.53l-.71 1.54-3.01 3.16-.77.51-1.73.36-.72-.1-1.12-.52-.66-.91.56-.82.61-.2 1.27.56 1.13-.26 2.86-2.96.4-.97-.35-1.22-.97-.62h-.77l-.66.31-1.74 1.84-1.83-.16-.11-.25.31-.66 2.04-2.25.82-.51 1.94-.31z" fill="#fff" stroke="#fff" stroke-width=".28" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
         <div class="brand-copy">
-          <p class="brand-name">Temporary Links <span class="version-badge">v1.0.4</span></p>
+          <p class="brand-name">Temporary Links <span class="version-badge">v1.0.5</span></p>
           <p class="brand-meta" data-i18n="brandMeta">単一HTML・ローカル保存・フローティング表示</p>
         </div>
       </div>
@@ -553,6 +554,7 @@
         <li data-i18n="helpEdit">各項目の「編集」からURL・パスとメモを変更できます。保持期間と完了状態はそのままです。</li>
         <li data-i18n="helpStep3">使用中・すべて・完了・期限切れで絞り込み、不要になった項目は削除できます。</li>
       </ol>
+      <p data-i18n="helpDialogs">使い方・編集を開いている間は背景ページを固定し、内容はダイアログ内でスクロールできます。閉じるとページのスクロールが戻ります。</p>
 
       <h3 data-i18n="helpFloatingTitle">フローティング表示</h3>
       <p data-i18n="helpFloatingBody">対応ブラウザーのHTTPSページでは、使用中の項目を常に手前に表示する小さなウィンドウで開けます。非対応環境では通常のリスト機能をそのまま使えます。</p>
@@ -574,7 +576,7 @@
     (() => {
       'use strict';
 
-      const VERSION = '1.0';
+      const VERSION = '1.0.5';
       const KEYS = {
         persistent: 'temporary-links-v1',
         session: 'temporary-links-session-v2',
@@ -599,6 +601,7 @@
           openFloating: 'フローティング表示', floatingOpen: 'フローティング表示中', exportMarkdown: 'Markdown保存', clearDone: '完了を削除', clearExpired: '期限切れを削除', clearAll: 'すべて削除',
           footerText: 'データはこのアプリから外部送信されません', helpTitle: '使い方と注意事項', close: '閉じる',
           helpBasicsTitle: '基本操作', helpStep1: 'URLまたはローカルパスを入力し、必要ならメモと保持期間を指定して「追加」を押します。', helpStep2: 'Webリンクは「開く」、ローカルパスは「パスをコピー」などから利用します。', helpStep3: '使用中・すべて・完了・期限切れで絞り込み、不要になった項目は削除できます。',
+          helpDialogs: '使い方・編集を開いている間は背景ページを固定し、内容はダイアログ内でスクロールできます。閉じるとページのスクロールが戻ります。',
           helpFloatingTitle: 'フローティング表示', helpFloatingBody: '対応ブラウザーのHTTPSページでは、使用中の項目を常に手前に表示する小さなウィンドウで開けます。非対応環境では通常のリスト機能をそのまま使えます。',
           helpLocalTitle: 'ローカルパス', helpLocalBody: '通常のWebページから任意のローカルファイルを直接開くことはブラウザー制約の影響を受けるため、パス・フォルダー・ファイル名のコピーを提供します。',
           helpPrivacyTitle: '保存とプライバシー', helpPrivacy1: 'リンク、パス、メモはブラウザー内のlocalStorage / sessionStorageに保存され、このアプリから送信されません。', helpPrivacy2: '「このタブを閉じるまで」はsessionStorageを使うため、タブを閉じると消えます。', helpPrivacy3: 'ブラウザーのサイトデータを削除すると保存内容も消えます。必要な一覧はMarkdownとして保存してください。', helpOffline: 'アプリ本体は単一HTMLです。通常機能はローカルファイルでも使えますが、フローティング表示は対応する安全なコンテキストが必要です。',
@@ -636,6 +639,7 @@
           openFloating: 'Floating window', floatingOpen: 'Floating window open', exportMarkdown: 'Save Markdown', clearDone: 'Clear done', clearExpired: 'Clear expired', clearAll: 'Clear all',
           footerText: 'This app does not send your data anywhere', helpTitle: 'How to use & notes', close: 'Close',
           helpBasicsTitle: 'Basics', helpStep1: 'Enter a URL or local path, optionally choose a note and retention period, then press Add.', helpStep2: 'Open web links directly. For local paths, use the copy actions for the path, folder, or file name.', helpStep3: 'Filter by Active, All, Done, or Expired, and remove items when you no longer need them.',
+          helpDialogs: 'Help and Edit scroll inside the dialog while the background page stays still. Close the dialog to scroll the page again.',
           helpFloatingTitle: 'Floating window', helpFloatingBody: 'On a supported browser over HTTPS, active items can be shown in a small always-on-top window. The normal list continues to work when this capability is unavailable.',
           helpLocalTitle: 'Local paths', helpLocalBody: 'Because normal web pages are restricted from opening arbitrary local files, the app provides copy actions for the path, parent folder, and file name instead.',
           helpPrivacyTitle: 'Storage & privacy', helpPrivacy1: 'Links, paths, and notes are stored in localStorage / sessionStorage in your browser and are not sent by this app.', helpPrivacy2: 'Until this tab closes uses sessionStorage, so those items disappear when the tab is closed.', helpPrivacy3: 'Clearing browser site data also removes saved items. Save a Markdown copy if you need to keep the list.', helpOffline: 'The app itself is one HTML file. Core features work as a local file, while the floating window requires a supported secure context.',

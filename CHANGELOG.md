@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.5 - 2026-10-11
+
+- Lock background page scrolling only while Help or Edit is a native modal, preserving the existing inner scroll areas and dismissal behavior.
+- Keep the decorative shield, link handling, storage, exports, clipboard, floating window and network policy unchanged.
+- Add Japanese/English dialog-scrolling guidance, modal-only CSS guards and repeated Help dismissal regressions to the existing Node.js test suite.
+- 使い方・編集のモーダル表示中だけ背景ページのスクロールを固定し、既存の内部スクロールと閉じる操作を維持。日英の説明と回帰テストを追加。
+
 ## 1.0.4 - 2026-10-10
 
 - Replace the canonical SVG, header icon and embedded favicon with the supplied redesigned artwork, preserving the exact #16624f color and 64×64 rx=16 background.

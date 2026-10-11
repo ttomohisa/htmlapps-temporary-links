@@ -45,6 +45,10 @@ After publishing this repository with GitHub Pages:
 
 Core list features work as a local HTML file. The floating window uses the Document Picture-in-Picture API, which requires a supported **secure context (HTTPS)**. For that feature, use the GitHub Pages version or another supported HTTPS host.
 
+## Dialog scrolling
+
+While **Help** or **Edit** is open, the background page stays still. On a short screen, scroll inside the dialog to reach its remaining content and actions. Closing the dialog restores normal page scrolling. Help's Close button stays above its scrolling content; Edit's Save and Cancel remain inside it.
+
 ## Editing a reference
 
 Select **Edit** on any item, including one in **Done** or **Expired**, to change its URL/path or note. **Save** updates the existing item; **Cancel** or **Escape** discards the draft. Editing leaves its retention, completion status, creation time, list order, and session/persistent storage unchanged. The separate Add form is also preserved.
@@ -139,19 +143,20 @@ htmlapps-temporary-links/
 
 ## Release version
 
-The earlier `v1.0` badge and changelog release are treated as `1.0.0`; this patch is `v1.0.4`. The app remains a single maintained HTML file with no build step. Its **Fully local processing** badge describes in-app processing; opening a saved web link still navigates to that destination.
+The earlier `v1.0` badge and changelog release are treated as `1.0.0`; this patch is `v1.0.5`. The app remains a single maintained HTML file with no build step. Its **Fully local processing** badge describes in-app processing; opening a saved web link still navigates to that destination.
 
 ## Development checks
 
 The app intentionally has no build step. Before publishing changes:
 
-1. Run `node --test` (Node.js 24, no dependencies). This checks the inline script, editing, export scope, validation and composition-Enter guards with controlled DOM/storage/PiP/download doubles; it does not replace native browser testing.
+1. Run `node --test` (Node.js 24, no dependencies). This checks the inline script, editing, export scope, validation and composition-Enter guards with controlled DOM/storage/PiP/download doubles, plus modal-scroll CSS and decorative-shield source contracts; it does not replace native browser testing.
 2. Verify there are no runtime CDN or network dependencies.
 3. Test web URLs, `file:///` URLs, Windows paths, UNC paths, and absolute paths.
 4. Test each retention mode and the four list filters.
 5. Test Japanese and English UI.
 6. Test local-file core behavior and HTTPS floating-window behavior separately.
 7. Test both Markdown export scopes, zero matches, native IME input, actual downloads and destructive-action confirmations.
+8. At a short viewport such as 393×252, verify Help and Edit scroll internally while outside wheel/touch input leaves the page in place. Check Help's final paragraph and Close, Edit's Save/Cancel, and restored page scrolling after Save, Cancel, Close, Escape and Help backdrop dismissal. Repeat in Japanese and English and reopen each dialog.
 
 ## License
 
