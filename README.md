@@ -141,6 +141,8 @@ htmlapps-temporary-links/
 
 The earlier `v1.0` badge and changelog release are treated as `1.0.0`; this patch is `v1.0.5`. The app remains a single maintained HTML file with no build step. Its **Fully local processing** badge describes in-app processing; opening a saved web link still navigates to that destination.
 
+The informational footer is hidden at the existing 560 px smartphone breakpoint; input, filtering, item actions and Help remain available.
+
 ## Development checks
 
 The app intentionally has no build step. Before publishing changes:
