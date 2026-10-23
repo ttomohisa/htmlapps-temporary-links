@@ -24,6 +24,8 @@
 
 ## Unreleased
 
+- Hide only the informational footer in the existing smartphone layout; keep controls and desktop visibility unchanged.
+
 ### Added
 
 - Choose all items or current filtered/search results for Markdown export, with localized count and filename previews. The choice is page-only; empty current results cannot silently export all items.
