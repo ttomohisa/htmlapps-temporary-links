@@ -4,3 +4,6 @@
 *.jpg binary
 *.jpeg binary
 *.webp binary
+
+components/ui-conventions.js text eol=lf
+components/ui-conventions.css text eol=lf

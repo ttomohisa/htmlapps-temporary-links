@@ -64,6 +64,18 @@ Open **More**, choose **All items** or **Current results**, check the count and 
 
 The success message means the browser download was started, not that the file reached disk. A detected download-start error offers a retry and releases the temporary download resources.
 
+## Saving, recovery and removal
+
+Persistent and tab-session references have independent automatic-save status. Add, Edit and Done change the displayed item only after its owning storage write succeeds. A failed read, malformed stored value or failed write stays visible with a scoped Retry; current forms, search and export filenames remain available. Retry never silently replaces invalid stored data. Clear all requires explicit confirmation before removing either reference key, including unreadable stored references. It leaves language preferences intact.
+
+Remove, Clear done, Clear expired and Clear all identify the target scope in a Cancel-first dialog. Cancel, Escape and the backdrop preserve the references. Confirm locks other mutations until the transaction finishes and restores focus to a surviving search/input control. These irreversible removals do not provide Undo.
+
+Legacy session migration keeps its existing automatic startup behavior, with a durability safeguard: the session destination must save before the persistent origin is removed. If either write fails, the recoverable original is retained and list changes wait for Retry.
+
+Markdown filenames can be edited separately for All items and Current results; drafts and scope last only while the page is open. The saved artifact contains only references in that scope. Add/Edit drafts, search, filters and floating-window drafts are not backed up.
+
+Language follows a valid URL `lang`, the shared Browser Kitty preference, the existing language preference, supported browser language, then English. Only an explicit language switch saves the shared preference. A storage failure reports that the choice applies to this screen only. Switching language preserves drafts, selection and active operations.
+
 ## Supported input
 
 | Type | Example | Main action |

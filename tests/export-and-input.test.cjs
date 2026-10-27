@@ -20,13 +20,13 @@ function makeDocument() {
   const nodes = new Map();
   const doc = { nodes, activeElement: null };
   function node(id = '') {
-    const listeners = new Map();
+    const listeners = new Map(), classes=new Set();
     const element = { id, value: '', textContent: '', innerHTML: '', dataset: {}, style: {}, open: false,
       isConnected: true, className: '', disabled: false,
-      classList: { toggle() {}, add() {}, remove() {} },
+      classList: { toggle(name,on){on=on??!classes.has(name);on?classes.add(name):classes.delete(name);}, add(name){classes.add(name);}, remove(name){classes.delete(name);},contains:name=>classes.has(name) },
       addEventListener(type, listener) { const list = listeners.get(type) || []; list.push(listener); listeners.set(type, list); },
-      dispatch(type, extra = {}) { const event = { target: element, preventDefault() { this.defaultPrevented = true; }, ...extra }; for (const fn of listeners.get(type) || []) fn(event); return event; },
-      focus() { doc.activeElement = element; }, select() {}, children: [], append(child) { this.children.push(child); child.parent = this; }, remove() { if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }, click() { this.dispatch('click'); },
+      dispatch(type, extra = {}) { const event = { target: element, preventDefault() { this.defaultPrevented = true; }, ...extra }; const results=[];for (const fn of listeners.get(type) || []) results.push(fn(event));event.completion=Promise.all(results);return event; },
+      focus() { doc.activeElement = element; }, select() {}, children: [], append(child) { this.children.push(child); child.parent = this; }, remove() { if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }, click() { return this.dispatch('click').completion; },
       setAttribute(name, value) { this[name] = value; }, removeAttribute(name) { delete this[name]; },
       showModal() { this.open = true; }, close() { this.open = false; this.dispatch('close'); },
       querySelector() { return null; }, contains() { return false; }, closest() { return null; } };
@@ -68,17 +68,19 @@ function launch({ clipboard = {}, downloadThrows = false, onDownload = () => {},
   const pip = { document: makeDocument(), closed: false, addEventListener() {}, setTimeout() { return 1; } };
   const documentPictureInPicture = { requestWindow: async () => pip };
   const window = { documentPictureInPicture, localStorage: local, sessionStorage: tab, isSecureContext: false, setTimeout: (callback) => { scheduled.push(callback); return scheduled.length; } };
-  const context = vm.createContext({ document, window, documentPictureInPicture, navigator: { language: 'en', clipboard }, Blob: CaptureBlob, URL: CaptureURL, Intl, Date, setTimeout: () => 1, clearTimeout() {}, confirm: () => true });
+  const context = vm.createContext({ BrowserKittyUI:require('../components/ui-conventions.js'),requestAnimationFrame:fn=>{fn();return 1;},document, window, documentPictureInPicture, navigator: { language: 'en', clipboard }, Blob: CaptureBlob, URL: CaptureURL, Intl, Date, setTimeout: () => 1, clearTimeout() {}, confirm: () => true });
   const exposed = source.replace(/\}\)\(\);\s*$/, `globalThis.app = { expiry, isExpired, expiryLabel, exportMarkdown, openFloating, copyText, clearDone, clearExpired, clearAll, mainAdd, toggleLanguage, addItem, findItem, allItems, activeItems, getVisibleItems, itemCard, markdownFor, classify, canonical, titleFor, localPath, parentPath, openEdit, saveEdit, bindListEvents, setView(f, q = '') { filter = f; query = q; }, setPip(p) { pipWindow = p; }, render, translations }; })();`);
   vm.runInContext(exposed, context);
   const app = context.app;
   function start(id) { app.openEdit(id); return document.querySelector('#editDialog'); }
   function save(url, note) { document.querySelector('#editUrlInput').value = url; document.querySelector('#editNoteInput').value = note; document.querySelector('#editSaveButton').click(); }
-  function action(id, action, doc = document) { const card = { dataset: { id } }; const button = { dataset: { action }, closest: () => card }; doc.dispatch('click', { target: { closest: () => button } }); }
+  function action(id, action, doc = document) { const card = { dataset: { id } }; const button = { dataset: { action }, closest: () => card }; return doc.dispatch('click', { target: { closest: () => button } }).completion; }
   return { app, document, window, context, pip, local, tab, downloads, blobs, revoked, scheduled, setDownloadFailure(value) { downloadThrows = value; }, start, save, action, read: () => JSON.parse(local.getItem(PERSISTENT) || '[]'), readSession: () => JSON.parse(tab.getItem(SESSION) || '[]') };
 }
 const item = (id, overrides = {}) => ({ id, url: `https://${id}.example/`, kind: 'web', note: 'original', title: 'Clipboard title', createdAt: 123, done: false, expiresAt: null, ...overrides });
 const plain = value => JSON.parse(JSON.stringify(value));
+async function confirmRemoval(h,pending,doc=h.document){assert.equal(doc.querySelector('#confirmDialog').open,true);assert.strictEqual(doc.activeElement,doc.querySelector('#confirmCancelButton'));doc.querySelector('#confirmOkButton').click();await pending;}
+
 
 
 test('all export deliberately ignores the active search/filter, includes both stores and done/expired', () => {
@@ -177,7 +179,7 @@ test('search uses the same title, URL, decoded path and Unicode-note matches as 
   }
 });
 
-test('preview and selected export update after edit, completion, Restore and removal', () => {
+test('preview and selected export update after edit, completion, Restore and removal', async () => {
   const h = launch({ persistent: [item('one', { note: 'matching' })] }); scope(h, 'visible');
   h.app.setView('active', 'matching'); h.app.render(); assert.equal(preview(h), '1 item');
   h.start('one'); h.save('https://one.example/', 'changed'); assert.equal(preview(h), '0 items');
@@ -185,7 +187,7 @@ test('preview and selected export update after edit, completion, Restore and rem
   h.action('one', 'done'); assert.equal(preview(h), '0 items');
   h.action('one', 'done'); assert.equal(preview(h), '1 item');
   h.app.exportMarkdown(); assert.match(contents(h), /changed/); assert.doesNotMatch(contents(h), /matching/);
-  h.action('one', 'remove'); assert.equal(preview(h), '0 items');
+  const pending=h.action('one','remove');assert.equal(preview(h),'1 item');await confirmRemoval(h,pending);assert.equal(preview(h),'0 items');
 });
 
 test('zero visible results disable saving with an explanation and never export all records', () => {
@@ -315,15 +317,15 @@ test('current results combine both stores and retain status ordering without rew
   assert.equal(h.local.writes, 0); assert.equal(h.tab.writes, 0);
 });
 
-test('scope and preview remain coherent after adding and clearing records repeatedly', () => {
+test('scope and preview remain coherent after adding and clearing records repeatedly', async () => {
   const h = launch(); scope(h, 'visible');
   assert.equal(h.document.querySelector('#exportButton').disabled, true);
   for (let index = 0; index < 2; index++) {
     h.app.addItem('https://one.example/', '', 'keep'); assert.equal(preview(h), '1 item');
     h.app.addItem('/資料.txt', '', 'session'); assert.equal(preview(h), '2 items');
     h.action(h.app.allItems()[0].id, 'done'); assert.equal(preview(h), '1 item');
-    h.app.clearDone(); assert.equal(preview(h), '1 item');
-    h.app.clearAll(); assert.equal(preview(h), '0 items');
+    await confirmRemoval(h,h.app.clearDone());assert.equal(preview(h),'1 item');
+    const pending=h.app.clearAll();assert.equal(preview(h),'1 item');await confirmRemoval(h,pending);assert.equal(preview(h),'0 items');
     assert.equal(h.document.querySelector('#exportScope').value, 'visible');
     assert.equal(h.document.querySelector('#exportButton').disabled, true);
   }
@@ -332,7 +334,7 @@ test('scope and preview remain coherent after adding and clearing records repeat
 test('distribution stays a single self-contained app and CI discovers the whole test suite', () => {
   const path = require('node:path');
   const root = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
-  assert.match(root, /location\.replace\('temporary-links\.html'\)/);
+  assert.match(root, /location\.replace\('temporary-links\.html' \+ location\.search \+ location\.hash\)/);
   assert.match(root, /content="0;url=temporary-links\.html"/);
   assert.match(html, /connect-src 'none'/); assert.doesNotMatch(html, /<script[^>]+src=/);
   const workflow = fs.readFileSync(path.join(__dirname, '..', '.github/workflows/preview.yml'), 'utf8');

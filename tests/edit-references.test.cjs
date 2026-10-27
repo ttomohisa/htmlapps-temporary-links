@@ -20,13 +20,13 @@ function makeDocument() {
   const nodes = new Map();
   const doc = { nodes, activeElement: null };
   function node(id = '') {
-    const listeners = new Map();
+    const listeners = new Map(), classes=new Set();
     const element = { id, value: '', textContent: '', innerHTML: '', dataset: {}, style: {}, open: false,
       isConnected: true, className: '', disabled: false,
-      classList: { toggle() {}, add() {}, remove() {} },
+      classList: { toggle(name,on){on=on??!classes.has(name);on?classes.add(name):classes.delete(name);}, add(name){classes.add(name);}, remove(name){classes.delete(name);},contains:name=>classes.has(name) },
       addEventListener(type, listener) { const list = listeners.get(type) || []; list.push(listener); listeners.set(type, list); },
-      dispatch(type, extra = {}) { const event = { target: element, preventDefault() { this.defaultPrevented = true; }, ...extra }; for (const fn of listeners.get(type) || []) fn(event); return event; },
-      focus() { doc.activeElement = element; }, select() {}, append() {}, remove() {}, click() { this.dispatch('click'); },
+      dispatch(type, extra = {}) { const event = { target: element, preventDefault() { this.defaultPrevented = true; }, ...extra }; const results=[];for (const fn of listeners.get(type) || []) results.push(fn(event));event.completion=Promise.all(results);return event; },
+      focus() { doc.activeElement = element; }, select() {}, append() {}, remove() {}, click() { return this.dispatch('click').completion; },
       setAttribute(name, value) { this[name] = value; }, removeAttribute(name) { delete this[name]; },
       showModal() { this.open = true; }, close() { this.open = false; this.dispatch('close'); },
       querySelector() { return null; }, contains() { return false; }, closest() { return null; } };
@@ -47,17 +47,19 @@ function makeDocument() {
 function launch({ persistent = [], session = [], local = storage({ [PERSISTENT]: JSON.stringify(persistent) }), tab = storage({ [SESSION]: JSON.stringify(session) }) } = {}) {
   const document = makeDocument();
   const window = { localStorage: local, sessionStorage: tab, isSecureContext: false, setTimeout: () => 1 };
-  const context = vm.createContext({ document, window, navigator: { language: 'en' }, URL, Intl, Date, setTimeout: () => 1, clearTimeout() {}, confirm: () => true });
+  const context = vm.createContext({ BrowserKittyUI:require('../components/ui-conventions.js'),requestAnimationFrame:fn=>{fn();return 1;},document, window, navigator: { language: 'en' }, URL, Intl, Date, setTimeout: () => 1, clearTimeout() {}, confirm: () => true });
   const exposed = source.replace(/\}\)\(\);\s*$/, `globalThis.app = { addItem, findItem, allItems, activeItems, getVisibleItems, itemCard, markdownFor, classify, canonical, titleFor, localPath, parentPath, openEdit, saveEdit, bindListEvents, setView(f, q = '') { filter = f; query = q; }, setPip(p) { pipWindow = p; }, render, translations }; })();`);
   vm.runInContext(exposed, context);
   const app = context.app;
   function start(id) { app.openEdit(id); return document.querySelector('#editDialog'); }
   function save(url, note) { document.querySelector('#editUrlInput').value = url; document.querySelector('#editNoteInput').value = note; document.querySelector('#editSaveButton').click(); }
-  function action(id, action, doc = document) { const card = { dataset: { id } }; const button = { dataset: { action }, closest: () => card }; doc.dispatch('click', { target: { closest: () => button } }); }
+  function action(id, action, doc = document) { const card = { dataset: { id } }; const button = { dataset: { action }, closest: () => card }; return doc.dispatch('click', { target: { closest: () => button } }).completion; }
   return { app, document, local, tab, start, save, action, read: () => JSON.parse(local.getItem(PERSISTENT) || '[]'), readSession: () => JSON.parse(tab.getItem(SESSION) || '[]') };
 }
 const item = (id, overrides = {}) => ({ id, url: `https://${id}.example/`, kind: 'web', note: 'original', title: 'Clipboard title', createdAt: 123, done: false, expiresAt: null, ...overrides });
 const plain = value => JSON.parse(JSON.stringify(value));
+async function confirmRemoval(h,pending,doc=h.document){assert.equal(doc.querySelector('#confirmDialog').open,true);assert.strictEqual(doc.activeElement,doc.querySelector('#confirmCancelButton'));doc.querySelector('#confirmOkButton').click();await pending;}
+
 
 // Syntax and policy guardrails apply to the same single-file distribution used by the tests.
 test('inline script compiles and privacy CSP remains restrictive', () => {
@@ -166,14 +168,14 @@ test('Unicode and HTML-like note text are preserved and escaped in cards', () =>
   assert.equal(actual.note, '<img src=x onerror=alert(1)> & 日本語 😀');
   assert.doesNotMatch(card, /<img src=x/); assert.match(card, /&lt;img/); assert.match(card, /日本語 😀/);
 });
-test('PiP changes while editing use the current item and removed items are never recreated', () => {
+test('PiP changes while editing use the current item and removed items are never recreated', async () => {
   const h = launch({ persistent: [item('one'), item('two')] });
   const pip = makeDocument(); h.app.bindListEvents(pip);
   h.app.setPip({ document: pip, closed: false, setTimeout() {} });
   h.start('one'); h.action('one', 'done', pip); h.save('https://edited.example/', 'edited');
   assert.equal(h.app.findItem('one').done, true); assert.equal(h.app.findItem('one').note, 'edited');
   assert.doesNotMatch(pip.querySelector('#pipList').innerHTML, /edited.example/);
-  h.start('two'); h.action('two', 'remove', pip); h.save('https://never.example/', 'never');
+  h.start('two');const pending=h.action('two','remove',pip);assert.ok(h.app.findItem('two'));await confirmRemoval(h,pending,pip);h.save('https://never.example/', 'never');
   assert.equal(h.app.findItem('two'), null); assert.equal(h.read().length, 1);
   assert.ok(h.document.querySelector('#editError').textContent);
 });
@@ -217,7 +219,7 @@ test('Edit event opens existing records only, Enter saves, and IME confirmation 
   assert.equal(h.app.findItem('one').note, 'changed');
   h.action('missing', 'edit'); assert.equal(h.document.querySelector('#editDialog').open, false);
 });
-test('adding, retention, filtering, path helpers, completion and removal still work', () => {
+test('adding, retention, filtering, path helpers, completion and removal still work', async () => {
   const h = launch();
   assert.equal(h.app.addItem('https://example.com', 'web note', 'keep', 'A title'), true);
   assert.equal(h.app.addItem('https://EXAMPLE.com:443/', 'duplicate', 'session'), false);
@@ -230,5 +232,5 @@ test('adding, retention, filtering, path helpers, completion and removal still w
   const web = h.read()[0]; h.action(web.id, 'done');
   h.app.setView('done'); assert.equal(h.app.getVisibleItems()[0].id, web.id);
   h.action(web.id, 'done'); assert.equal(h.app.getVisibleItems().length, 0);
-  h.action(web.id, 'remove'); assert.equal(h.app.findItem(web.id), null);
+  const pending=h.action(web.id,'remove');assert.ok(h.app.findItem(web.id));await confirmRemoval(h,pending);assert.equal(h.app.findItem(web.id), null);
 });

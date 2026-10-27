@@ -373,6 +373,15 @@
       .stats { width: 100%; }
       .stat { flex: 1 1 0; min-width: 0; }
     }
+    .ui-feedback { padding: 8px 14px; min-width: 0; max-width: 100%; overflow-wrap: anywhere; font-size: 12px; }
+    .ui-feedback p, .pip-feedback p { margin: 5px 0; }
+    #helpDialog[open], #editDialog[open], #confirmDialog[open] { display: flex; flex-direction: column; }
+    #helpDialog .dialog-header, #editDialog .dialog-header, #confirmDialog .dialog-header { flex: 0 0 auto; }
+    #helpDialog .dialog-body, #editDialog .dialog-body, #confirmDialog .dialog-body { flex: 1 1 auto; min-height: 0; max-height: none; overflow: auto; }
+    #confirmMessage { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .pip .pip-panel { display: flex; flex-direction: column; max-height: calc(100dvh - 18px); }
+    .pip .pip-list { flex: 1 1 auto; min-height: 0; overflow: auto; }
+    .pip-feedback { max-height: 40dvh; overflow: auto; overflow-wrap: anywhere; font-size: 11px; }
     @media (max-width: 560px) {
       :root { --header-height: 58px; }
       .header-inner { padding-block: 8px; }
@@ -401,6 +410,124 @@
     }
     @media (max-width: 560px) { body > .footer { display: none; } }
   </style>
+<!-- BK_UI_CSS:BEGIN -->
+<style data-bk-ui-version="1.0.0">
+/* Browser Kitty shared UI conventions 1.0.0. Explicit opt-in only. */
+[data-bk-button] { min-height: 44px; border: 1px solid #BFC1BA; background: #FFFFFF; color: #202823; cursor: pointer; opacity: 1; }
+[data-bk-button][data-bk-variant="primary"] { background: #16624F; border-color: #16624F; color: #FFFFFF; }
+[data-bk-button][data-bk-variant="primary"]:hover:not(:disabled) { background: #0E503F; border-color: #0E503F; }
+[data-bk-button][data-bk-variant="secondary"] { background: #FFFFFF; color: #202823; border-color: #BFC1BA; }
+[data-bk-button][data-bk-variant="secondary"]:hover:not(:disabled) { background: #FFFFFF; color: #202823; border-color: #BFC1BA; }
+[data-bk-button][data-bk-variant="danger"] { background: #B3261E; border-color: #B3261E; color: #FFFFFF; }
+[data-bk-button][data-bk-variant="danger"]:hover:not(:disabled) { background: #8C1D18; border-color: #8C1D18; color: #FFFFFF; }
+[data-bk-button]:focus-visible, [data-bk-header-action]:focus-visible { outline: 2px solid #16624F; outline-offset: 2px; }
+[data-bk-button]:disabled, [data-bk-button]:disabled:hover, [data-bk-button]:disabled:active { background: #E7EBE7; color: #59635C; border-color: #E7EBE7; cursor: not-allowed; opacity: 1; transform: none; }
+[data-bk-button][data-bk-state="busy"], [data-bk-button][data-bk-state="stopping"], [data-bk-button][data-bk-state="busy"]:hover, [data-bk-button][data-bk-state="stopping"]:hover { background: #E1F0EA; color: #16624F; border-color: #E1F0EA; cursor: wait; opacity: 1; }
+[data-bk-button][data-bk-state="busy"]::before, [data-bk-button][data-bk-state="stopping"]::before { content: ''; display: inline-block; width: .85em; height: .85em; margin-inline-end: .45em; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; vertical-align: -.1em; animation: bk-ui-spin .85s linear infinite; }
+[data-bk-header-action] { min-width: 44px; min-height: 44px; }
+[data-bk-save-status] { display: block; font-size: .85rem; color: #59635C; overflow-wrap: anywhere; }
+[data-bk-save-status="error"] { color: #B3261E; }
+@keyframes bk-ui-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { [data-bk-button] { transition: none; } [data-bk-button]::before { animation: none !important; } }
+</style>
+<!-- BK_UI_CSS:END -->
+<!-- BK_UI_JS:BEGIN -->
+<script data-bk-ui-version="1.0.0">
+/* Browser Kitty shared UI conventions 1.0.0. Build-time embed only; no network. */
+(function (root) {
+  'use strict';
+  const version = '1.0.0';
+  const languageKey = 'browser-kitty:ui-language:v1';
+  const validLanguage = value => value === 'ja' || value === 'en';
+  function safely(read, fallback) { try { return read(); } catch (_) { return fallback; } }
+  function dependency(options, key, readDefault, fallback) {
+    return safely(() => Object.prototype.hasOwnProperty.call(options, key) ? options[key] : readDefault(), fallback);
+  }
+  function storageFrom(options) { return dependency(options, 'storage', () => root.localStorage, null); }
+  function urlFrom(options) { return dependency(options, 'url', () => root.location.href, ''); }
+  function parseUrl(value) { return safely(() => new URL(String(value), 'https://browser-kitty.invalid/'), null); }
+  function readLanguage(storage, key) { return safely(() => storage && storage.getItem(key), null); }
+  function resolveLanguage(options = {}) {
+    const url = parseUrl(urlFrom(options));
+    const query = url && url.searchParams.get('lang');
+    if (validLanguage(query)) return query;
+    const storage = storageFrom(options);
+    const shared = readLanguage(storage, languageKey);
+    if (validLanguage(shared)) return shared;
+    for (const key of options.legacyKeys || []) {
+      const legacy = readLanguage(storage, key);
+      if (validLanguage(legacy)) return legacy;
+    }
+    const languages = dependency(options, 'languages', () => root.navigator.languages || [root.navigator.language], []);
+    for (const value of languages || []) {
+      const language = String(value).toLowerCase().split('-')[0];
+      if (validLanguage(language)) return language;
+    }
+    return 'en';
+  }
+  function chooseLanguage(language, options = {}) {
+    if (!validLanguage(language)) throw new TypeError('Unsupported language: ' + language);
+    const storage = storageFrom(options);
+    const persisted = safely(() => { if (!storage) return false; storage.setItem(languageKey, language); return true; }, false);
+    const url = parseUrl(urlFrom(options));
+    const history = dependency(options, 'history', () => root.history, null);
+    const urlUpdated = safely(() => {
+      if (!url || !url.searchParams.has('lang') || !history) return false;
+      url.searchParams.set('lang', language);
+      history.replaceState(history.state, '', url.href);
+      return true;
+    }, false);
+    return { language, persisted, urlUpdated };
+  }
+  const copy = {
+    en: {
+      sessionOnly: 'Your work will be lost when this tab closes',
+      manualSave: 'Your work is not saved automatically. Save a project file to continue editing later.',
+      dirty: 'Unsaved changes', saving: 'Saving…', saved: 'Saved in this browser',
+      saveFailed: 'Could not save in this browser', downloadStarted: 'Download started',
+      previousResult: 'Previous result', stopping: 'Stopping…', stopProcessing: 'Stop processing', cancel: 'Cancel',
+      languageSessionOnly: 'Language applies to this screen only'
+    },
+    ja: {
+      sessionOnly: '作業内容はこのタブを閉じると消えます',
+      manualSave: '自動保存されません。続きの編集には作業ファイルを保存してください',
+      dirty: '未保存の変更があります', saving: '保存しています…', saved: 'このブラウザーに保存済み',
+      saveFailed: 'このブラウザーに保存できませんでした', downloadStarted: '保存を開始しました',
+      previousResult: '前回の結果', stopping: '中止しています…', stopProcessing: '処理を中止', cancel: 'キャンセル',
+      languageSessionOnly: '言語はこの画面だけに適用されます'
+    }
+  };
+  function text(key, language = 'en', values = {}) {
+    const locale = validLanguage(language) ? language : 'en';
+    let value = copy[locale][key] || copy.en[key] || String(key);
+    if (key === 'saved' && values.time) value += (locale === 'ja' ? '・' : ' · ') + String(values.time);
+    return value.replace(/\{([a-zA-Z0-9_]+)\}/g, (match, name) => Object.prototype.hasOwnProperty.call(values, name) ? String(values[name]) : match);
+  }
+  function setButtonState(button, state) {
+    if (!['ready', 'unavailable', 'busy', 'stopping'].includes(state)) throw new TypeError('Unsupported button state: ' + state);
+    button.disabled = state !== 'ready';
+    button.setAttribute('data-bk-state', state);
+    if (state === 'busy' || state === 'stopping') button.setAttribute('aria-busy', 'true');
+    else button.removeAttribute('aria-busy');
+  }
+  function setSaveStatus(element, options = {}) {
+    const mode = options.mode || 'session';
+    const state = options.state || 'dirty';
+    if (!['session', 'manual', 'autosave'].includes(mode)) throw new TypeError('Unsupported save mode: ' + mode);
+    if (!['dirty', 'saving', 'saved', 'error'].includes(state)) throw new TypeError('Unsupported save state: ' + state);
+    const key = mode === 'session' ? 'sessionOnly' : mode === 'manual' ? 'manualSave' : state === 'error' ? 'saveFailed' : state;
+    element.textContent = text(key, options.language, { time: options.time });
+    element.setAttribute('role', 'status');
+    element.setAttribute('aria-live', 'polite');
+    element.setAttribute('data-bk-save-status', state);
+    element.setAttribute('data-bk-save-mode', mode);
+  }
+  const api = Object.freeze({ version, languageKey, resolveLanguage, chooseLanguage, text, setButtonState, setSaveStatus });
+  root.BrowserKittyUI = api;
+  if (typeof module === 'object' && module.exports) module.exports = api;
+})(typeof globalThis === 'object' ? globalThis : window);
+</script>
+<!-- BK_UI_JS:END -->
 </head>
 <body>
   <header class="app-header">
@@ -413,8 +540,8 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="language-button" id="languageButton" type="button" data-i18n-title="languageTarget" data-i18n-aria-label="languageTarget" title="英語に切り替え" aria-label="英語に切り替え">EN</button>
-        <button class="header-icon-button" id="helpButton" type="button" data-i18n-title="helpTitle" data-i18n-aria-label="helpTitle" title="使い方と注意事項" aria-label="使い方と注意事項">
+        <button class="language-button" id="languageButton" data-bk-header-action type="button" data-i18n-title="languageTarget" data-i18n-aria-label="languageTarget" title="英語に切り替え" aria-label="英語に切り替え">EN</button>
+        <button class="header-icon-button" id="helpButton" data-bk-header-action type="button" data-i18n-title="helpTitle" data-i18n-aria-label="helpTitle" title="使い方と注意事項" aria-label="使い方と注意事項">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.8 9a2.35 2.35 0 1 1 3.72 1.9c-.92.67-1.52 1.12-1.52 2.1"/><path d="M12 17h.01"/></svg>
         </button>
       </div>
@@ -444,7 +571,7 @@
         <div class="url-row">
           <label class="sr-only" for="urlInput" data-i18n="urlLabel">URLまたはファイルパス</label>
           <input class="field" id="urlInput" type="text" autocomplete="off" spellcheck="false" data-i18n-placeholder="urlPlaceholder" placeholder="https://... / C:\work\file.xlsx / \\server\share\file.xlsx">
-          <button class="button" id="pasteButton" type="button" data-i18n="paste">貼り付け</button>
+          <button class="button" id="pasteButton" data-bk-button data-bk-variant="secondary" type="button" data-i18n="paste">貼り付け</button>
         </div>
         <label class="sr-only" for="noteInput" data-i18n="noteLabel">メモ</label>
         <textarea class="field" id="noteInput" data-i18n-placeholder="notePlaceholder" placeholder="メモ（任意）"></textarea>
@@ -457,7 +584,7 @@
             <option value="7d" data-i18n="ttl7d">7日後まで</option>
             <option value="keep" data-i18n="ttlKeep">削除するまで</option>
           </select>
-          <button class="button primary" id="addButton" type="button" data-i18n="add">追加</button>
+          <button class="button primary" id="addButton" data-bk-button data-bk-variant="primary" type="button" data-i18n="add">追加</button>
         </div>
       </div>
       <div class="input-hint" id="inputHint" aria-live="polite"></div>
@@ -477,7 +604,7 @@
 
       <div class="list-controls">
         <div class="floating-control">
-          <button class="button primary" id="pipButton" type="button" data-i18n="openFloating">フローティング表示</button>
+          <button class="button primary" id="pipButton" data-bk-button data-bk-variant="primary" type="button" data-i18n="openFloating">フローティング表示</button>
           <div class="support-chip" id="pipSupport"><span class="support-dot"></span><span id="pipSupportText"></span></div>
         </div>
         <div class="filter-cluster">
@@ -500,16 +627,18 @@
                 <option value="visible" data-i18n="exportVisible">現在の表示結果</option>
               </select>
               <p class="export-preview" id="exportPreview" aria-live="polite" aria-atomic="true"><span id="exportSummary"></span><span id="exportFilename"></span></p>
+              <label for="exportNameInput" data-i18n="exportNameLabel"></label><input class="field" id="exportNameInput" type="text" maxlength="160" autocomplete="off" spellcheck="false"><p id="exportStatus" role="status" aria-live="polite"></p>
               <p class="export-empty-hint" id="exportEmptyHint" hidden></p>
-              <button class="button compact" id="exportButton" type="button" data-i18n="exportMarkdown" aria-describedby="exportPreview exportEmptyHint">Markdown保存</button>
+              <button class="button compact" id="exportButton" data-bk-button data-bk-variant="primary" type="button" data-i18n="exportMarkdown" aria-describedby="exportPreview exportEmptyHint">Markdown保存</button>
             </div>
-            <button class="button compact" id="clearDoneButton" type="button" data-i18n="clearDone">完了を削除</button>
-            <button class="button compact" id="clearExpiredButton" type="button" data-i18n="clearExpired">期限切れを削除</button>
-            <button class="button compact danger" id="clearAllButton" type="button" data-i18n="clearAll">すべて削除</button>
+            <button class="button compact" id="clearDoneButton" data-bk-button data-bk-variant="danger" type="button" data-i18n="clearDone">完了を削除</button>
+            <button class="button compact" id="clearExpiredButton" data-bk-button data-bk-variant="danger" type="button" data-i18n="clearExpired">期限切れを削除</button>
+            <button class="button compact danger" id="clearAllButton" data-bk-button data-bk-variant="danger" type="button" data-i18n="clearAll">すべて削除</button>
           </div>
         </details>
       </div>
 
+      <div class="ui-feedback"><p data-i18n="retentionScope"></p><p id="persistentStatus" data-bk-save-status role="status" aria-live="polite"></p><button id="retryPersistent" type="button" data-bk-button data-bk-variant="secondary" data-i18n="retryPersistent" hidden></button><p id="sessionStatus" data-bk-save-status role="status" aria-live="polite"></p><button id="retrySession" type="button" data-bk-button data-bk-variant="secondary" data-i18n="retrySession" hidden></button><p id="migrationStatus" role="status" aria-live="polite"></p><p id="languageStatus" role="status" aria-live="polite"></p><p id="copyStatus" role="status" aria-live="polite"></p><p id="pasteStatus" role="status" aria-live="polite"></p><p id="floatingStatus" role="status" aria-live="polite"></p></div>
       <div class="search-wrap">
         <label class="sr-only" for="searchInput" data-i18n="searchLabel">リストを検索</label>
         <input class="field" id="searchInput" type="search" autocomplete="off" data-i18n-placeholder="searchPlaceholder" placeholder="タイトル・URL・メモを検索">
@@ -522,6 +651,7 @@
   <footer class="footer">Temporary Links · MIT License · <span data-i18n="footerText">データはこのアプリから外部送信されません</span></footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <dialog id="confirmDialog" aria-labelledby="confirmTitle"><div class="dialog-header"><h2 id="confirmTitle"></h2></div><div class="dialog-body"><p id="confirmMessage"></p><div class="edit-actions"><button id="confirmCancelButton" type="button" data-bk-button data-bk-variant="secondary"></button><button id="confirmOkButton" type="button" data-bk-button data-bk-variant="danger"></button></div></div></dialog>
   <dialog id="editDialog" aria-labelledby="editTitle" aria-describedby="editHelp">
     <div class="dialog-header"><h2 id="editTitle" data-i18n="editTitle">参照先を編集</h2></div>
     <div class="dialog-body">
@@ -534,8 +664,8 @@
       </div>
       <p id="editError" role="alert"></p>
       <div class="edit-actions">
-        <button class="button" id="editCancelButton" type="button" data-i18n="cancel">キャンセル</button>
-        <button class="button primary" id="editSaveButton" type="button" data-i18n="save">保存</button>
+        <button class="button" id="editCancelButton" data-bk-button data-bk-variant="secondary" type="button" data-i18n="cancel">キャンセル</button>
+        <button class="button primary" id="editSaveButton" data-bk-button data-bk-variant="primary" type="button" data-i18n="save">保存</button>
       </div>
     </div>
   </dialog>
@@ -569,6 +699,7 @@
         <li data-i18n="helpPrivacy2">「このタブを閉じるまで」はsessionStorageを使うため、タブを閉じると消えます。</li>
         <li data-i18n="helpPrivacy3">ブラウザーのサイトデータを削除すると保存内容も消えます。必要な一覧はMarkdownとして保存してください。</li>
       </ul>
+      <p data-i18n="retentionScope"></p>
       <p class="dialog-note" data-i18n="helpOffline">アプリ本体は単一HTMLです。通常機能はローカルファイルでも使えますが、フローティング表示は対応する安全なコンテキストが必要です。</p>
     </div>
   </dialog>
@@ -585,6 +716,23 @@
       };
       const translations = {
         ja: {
+          persistentDomain:"ブラウザーに保持する参照先",
+          sessionDomain:"このタブのセッション参照先",
+          retentionScope:"追加フォームはタブ内だけです。「追加」または編集の「保存」で選択した保存先へ反映します。各リストの変更はその保存先へ保存し、失敗時は一覧と下書きを保持して再試行できます。Markdownは選択した範囲の参照先一覧で、設定のバックアップではありません。",
+          storeReadFailed:"保存済みデータを読み込めませんでした。保存データは変更していません。再試行してください。",
+          storeWriteFailed:"参照先を保存できませんでした。以前の一覧と下書きは保持しています。再試行するか、読み込める項目をMarkdown保存してください。",
+          storeCleared:"この保存先の項目を削除しました。",
+          pendingChanged:"失敗した変更の後に入力や一覧が変わりました。現在の下書きで追加／保存をやり直してください。",
+          retryPersistent:"ブラウザー保存を再試行",
+          retrySession:"セッション保存を再試行",
+          migrationPending:"旧セッション項目の移行を完了できませんでした。移行先への保存を確認するまで元のデータを残します。再試行してください。",
+          removeTitle:"参照先を削除",
+          confirmOne:"この1件の参照先を削除しますか？",
+          confirmUnreadable:"読み込めないデータも含め、両方の保存先のTemporary Links項目をすべて削除しますか？",
+          removeScope:"選択した参照先だけを保存先から削除します。元に戻せません。追加／編集の下書き、言語設定、元のファイルは残ります。",
+          removePartial:"一部の保存先を削除できませんでした。残った項目と失敗理由を確認し、保存先ごとに再試行してください。",
+          removed:"参照先を削除しました",
+          exportNameLabel:"Markdownファイル名",
           brandMeta: '単一HTML・ローカル保存・フローティング表示',
           introTitle: '作業中のリンクを、一時置き。',
           lead: 'Web URLやローカルパスを必要な間だけ保存。タブを増やさず、作業中の参照先をまとめておけます。',
@@ -613,7 +761,7 @@
           editMissing: 'この項目は削除されています。キャンセルして一覧へ戻ってください。', editStorageFailed: '保存できませんでした。変更は反映されていません。再試行するか、内容をコピーしてキャンセルしてください。',
           helpEdit: '各項目の「編集」からURL・パスとメモを変更できます。保持期間と完了状態はそのままです。',
           added: '追加しました', duplicate: '同じ項目が使用中です', pasteFailed: 'クリップボードを読めませんでした。入力欄へ直接貼り付けてください。', pasted: '入力欄へ貼り付けました', titleDetected: 'コピー元のリンク名も取得しました',
-          copiedPath: 'パスをコピーしました', copiedFolder: 'フォルダーをコピーしました', copiedName: 'ファイル名をコピーしました', copied: 'コピーしました', copyFailed: 'コピーできませんでした',
+          copiedPath: 'パスをコピーしました', copiedFolder: 'フォルダーをコピーしました', copiedName: 'ファイル名をコピーしました', copied: 'コピーしました', copyFailed: 'コピーできませんでした。同じコピー操作を再試行するか、パスを選択して手動でコピーしてください。',
           open: '開く', copyPath: 'パスをコピー', copyFolder: 'フォルダー', copyName: '名前', done: '完了', restore: '戻す', remove: '削除',
           expiresSession: 'このタブを閉じるまで', expiresKeep: '削除するまで', expiresOn: '{date} まで', expired: '期限切れ',
           emptyActiveTitle: '使用中のリンクはありません', emptyActiveBody: '上の入力欄から、いま必要な参照先を追加できます。', emptyViewTitle: '該当する項目はありません', emptyViewBody: '絞り込みや検索条件を変更してください。',
@@ -621,11 +769,28 @@
           noDone: '完了した項目はありません', noExpired: '期限切れの項目はありません', clearedDone: '完了した項目を削除しました', clearedExpired: '期限切れの項目を削除しました', clearedAll: 'すべて削除しました',
           exportScopeLabel: '保存する範囲', exportAll: 'すべての項目', exportVisible: '現在の表示結果', exportCount: '{count} 件', exportCountOne: '{count} 件',
           exportVisibleEmpty: '保存する項目がありません。表示や検索条件を変更してください。', exportFailed: 'Markdownのダウンロードを開始できませんでした。もう一度お試しください。',
-          exported: 'Markdownのダウンロードを開始しました', floatingFailed: 'フローティングウィンドウを開けませんでした', floatingNotSupported: 'この環境ではフローティング表示を利用できません',
+          exported: 'Markdownのダウンロードを開始しました', floatingFailed: 'フローティングウィンドウを開けませんでした。フローティング表示を再試行してください。', floatingNotSupported: 'この環境ではフローティング表示を利用できません',
           pipPlaceholder: 'URL / パスを追加', pipAdd: '追加', pipEmpty: '使用中の項目はありません',
           webKind: 'Web', localKind: 'Local'
         },
         en: {
+          persistentDomain:"Browser-retained references",
+          sessionDomain:"Tab-session references",
+          retentionScope:"The Add draft stays in this tab. Add or Edit Save writes to the selected store; list changes save to their owning store. Failures retain the prior list/draft beside Retry. Markdown contains the selected reference list, not a settings backup.",
+          storeReadFailed:"Could not read saved references. Stored data is unchanged. Retry reading.",
+          storeWriteFailed:"Could not save references. The previous list and draft are retained. Retry, or save readable items as Markdown.",
+          storeCleared:"Items in this store were removed.",
+          pendingChanged:"Input or the list changed after the failed operation. Add/Save the current draft again.",
+          retryPersistent:"Retry browser storage",
+          retrySession:"Retry session storage",
+          migrationPending:"Legacy session migration is incomplete. Origin data stays until the destination is durable. Retry migration.",
+          removeTitle:"Remove references",
+          confirmOne:"Remove this one reference?",
+          confirmUnreadable:"Remove all Temporary Links items from both stores, including unreadable data?",
+          removeScope:"Remove only the selected references from their store. This cannot be undone. Add/Edit drafts, language and original files remain.",
+          removePartial:"Some storage could not be cleared. Retained items and failure details remain beside scoped Retry.",
+          removed:"Reference removed",
+          exportNameLabel:"Markdown filename",
           brandMeta: 'Single HTML · Local storage · Floating window',
           introTitle: 'A temporary shelf for links in progress.',
           lead: 'Keep web URLs and local paths only as long as you need them, without leaving a pile of tabs open.',
@@ -651,7 +816,7 @@
           editMissing: 'This item was removed. Cancel to return to the list.', editStorageFailed: 'Could not save. No changes were applied. Try again, or copy your changes before cancelling.',
           helpEdit: 'Use Edit on any item to change its URL, path, or note. Retention and completion status stay the same.',
           added: 'Added', duplicate: 'That item is already active', pasteFailed: 'Could not read the clipboard. Paste directly into the field instead.', pasted: 'Pasted into the field', titleDetected: 'Link title detected from the clipboard',
-          copiedPath: 'Path copied', copiedFolder: 'Folder copied', copiedName: 'File name copied', copied: 'Copied', copyFailed: 'Could not copy',
+          copiedPath: 'Path copied', copiedFolder: 'Folder copied', copiedName: 'File name copied', copied: 'Copied', copyFailed: 'Could not copy. Retry the same Copy action, or select the path and copy manually.',
           open: 'Open', copyPath: 'Copy path', copyFolder: 'Folder', copyName: 'Name', done: 'Done', restore: 'Restore', remove: 'Remove',
           expiresSession: 'Until this tab closes', expiresKeep: 'Until removed', expiresOn: 'Until {date}', expired: 'Expired',
           emptyActiveTitle: 'No active links', emptyActiveBody: 'Add a reference you need right now using the field above.', emptyViewTitle: 'No matching items', emptyViewBody: 'Change the filter or search terms.',
@@ -659,7 +824,7 @@
           noDone: 'No completed items', noExpired: 'No expired items', clearedDone: 'Completed items removed', clearedExpired: 'Expired items removed', clearedAll: 'All items removed',
           exportScopeLabel: 'Export scope', exportAll: 'All items', exportVisible: 'Current results', exportCount: '{count} items', exportCountOne: '{count} item',
           exportVisibleEmpty: 'No items to export. Change the filter or search.', exportFailed: 'Could not start the Markdown download. Try again.',
-          exported: 'Markdown download started', floatingFailed: 'Could not open the floating window', floatingNotSupported: 'Floating window is not available in this environment',
+          exported: 'Markdown download started', floatingFailed: 'Could not open the floating window. Retry Floating window.', floatingNotSupported: 'Floating window is not available in this environment',
           pipPlaceholder: 'Add URL / path', pipAdd: 'Add', pipEmpty: 'No active items',
           webKind: 'Web', localKind: 'Local'
         }
@@ -671,9 +836,14 @@
         ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>'
         : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7.5h7l2 2h9v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M3 7.5v-2a2 2 0 0 1 2-2h5l2 2h5"/></svg>';
 
-      const localStore = safeStorage('localStorage');
-      const sessionStore = safeStorage('sessionStorage');
-      let language = readStorage(localStore, KEYS.language) || (navigator.language?.toLowerCase().startsWith('en') ? 'en' : 'ja');
+      let localStore = safeStorage('localStorage');
+      let sessionStore = safeStorage('sessionStorage');
+      const storeStatus={persistent:{state:'dirty',blocked:false,key:'',at:null,version:0,pending:null},session:{state:'dirty',blocked:false,key:'',at:null,version:0,pending:null}};
+      let mutationLock=false,migrationPending=false,listGeneration=0,addRevision=0,editRevision=0,editErrorKey='',confirmation=null,languageFailure=false,pasteBusy=false,pasteStatus='',floatingBusy=false,floatingError=false,floatingGeneration=0,exportBusy=false,exportStatus='',exportSavedName='',toastRecord=null;
+      const exportNames={all:'',visible:''},copyPending=new Map(),copyFeedback=new Map();
+      let language=BrowserKittyUI.resolveLanguage({storage:localStore,legacyKeys:[KEYS.language],languages:navigator.languages||[navigator.language],url:window.location?.href});
+      let languageExplicit=false,languageNeedsRecovery=!hasStoredLanguage();
+      let rendered=false;
       let filter = 'active';
       let query = '';
       let exportScope = 'all';
@@ -683,15 +853,7 @@
       let persistentItems = readJson(localStore, KEYS.persistent);
       let sessionItems = readJson(sessionStore, KEYS.session);
 
-      // Migrate legacy "session" items out of localStorage so they follow true tab-session semantics.
-      const legacySessionItems = persistentItems.filter(item => item?.expiresAt === 'session');
-      if (legacySessionItems.length) {
-        const known = new Set(sessionItems.map(item => item.id));
-        legacySessionItems.forEach(item => { if (!known.has(item.id)) sessionItems.push(item); });
-        persistentItems = persistentItems.filter(item => item?.expiresAt !== 'session');
-        writeJson(localStore, KEYS.persistent, persistentItems);
-        writeJson(sessionStore, KEYS.session, sessionItems);
-      }
+      migrateLegacySessions();
 
       function t(key, vars = {}) {
         let value = translations[language][key] ?? key;
@@ -709,16 +871,34 @@
         if (!storage) return false;
         try { storage.setItem(key, value); return true; } catch { return false; }
       }
-      function readJson(storage, key) {
-        if (!storage) return [];
-        try {
-          const parsed = JSON.parse(storage.getItem(key) || '[]');
-          return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-        } catch { return []; }
-      }
+      function readJson(storage,key){const domain=key===KEYS.session?'session':'persistent',record=storeStatus[domain];try{if(!storage)throw Error('Storage unavailable');const raw=storage.getItem(key),items=parseItems(raw);record.state=raw===null?'dirty':'saved';record.blocked=false;record.key='';return items;}catch{record.state='error';record.blocked=true;record.key='storeReadFailed';return [];}}
       function writeJson(storage, key, value) {
         return writeStorage(storage, key, JSON.stringify(value));
       }
+      function parseItems(raw){if(raw===null)return [];const items=JSON.parse(raw);if(!Array.isArray(items))throw Error('Invalid references');const ids=new Set();for(const item of items){if(!item||typeof item!=='object'||typeof item.id!=='string'||ids.has(item.id)||typeof item.url!=='string')throw Error('Invalid reference');ids.add(item.id);for(const key of ['title','note','kind'])if(key in item&&typeof item[key]!=='string')throw Error('Invalid '+key);if('done'in item&&typeof item.done!=='boolean')throw Error('Invalid done');if('createdAt'in item&&!Number.isFinite(item.createdAt))throw Error('Invalid time');if(item.expiresAt!==undefined&&item.expiresAt!==null&&item.expiresAt!=='session'&&(typeof item.expiresAt!=='string'||!Number.isFinite(Date.parse(item.expiresAt))))throw Error('Invalid expiry');}return items;}
+      function itemsFor(domain){return domain==='session'?sessionItems:persistentItems;}
+      function setItems(domain,items){if(domain==='session')sessionItems=items;else persistentItems=items;}
+      function storageFor(domain){if(domain==='session'){sessionStore??=safeStorage('sessionStorage');return sessionStore;}localStore??=safeStorage('localStorage');return localStore;}
+      function writeDomain(domain,items,{remove=false,authorized=false}={}){const record=storeStatus[domain];if(record.blocked&&!authorized){record.state='error';record.key='storeReadFailed';return false;}try{const storage=storageFor(domain);if(!storage)throw Error('Storage unavailable');if(remove)storage.removeItem(KEYS[domain]);else storage.setItem(KEYS[domain],JSON.stringify(items));record.state='saved';record.blocked=false;record.key=remove?'storeCleared':'';record.at=Date.now();return true;}catch{record.state='error';record.key='storeWriteFailed';return false;}}
+      function migrateLegacySessions(){const legacy=persistentItems.filter(item=>item.expiresAt==='session');if(!legacy.length){migrationPending=false;return true;}migrationPending=true;if(storeStatus.persistent.blocked||storeStatus.session.blocked)return false;const known=new Set(sessionItems.map(item=>item.id)),missing=legacy.filter(item=>!known.has(item.id)),destination=[...sessionItems,...missing];if(missing.length&&!writeDomain('session',destination))return false;sessionItems=destination;const retained=persistentItems.filter(item=>item.expiresAt!=='session');if(!writeDomain('persistent',retained)){persistentItems=retained;return false;}persistentItems=retained;migrationPending=false;listGeneration++;return true;}
+      function commitDomain(domain,items,options={}){if(mutationLock&&!options.allowLocked)return false;const record=storeStatus[domain],version=record.version;if(!writeDomain(domain,items,options)){if(!record.blocked||options.authorized)record.pending={items,options,version};renderCommonUi();return false;}record.pending=null;setItems(domain,items);record.version++;listGeneration++;for(const [key,value]of copyFeedback)if(value.id&&!findItem(value.id))copyFeedback.delete(key);options.before?.();render();syncPip();options.after?.();renderCommonUi();return true;}
+      function retryDomain(domain,originDoc=document){if(mutationLock)return false;const opener=originDoc.activeElement,finish=value=>{if(value&&opener&&(originDoc.activeElement===opener||originDoc.activeElement===originDoc.body)&&(!opener.isConnected||opener.hidden||opener.disabled))(originDoc.querySelector(originDoc===document?'#searchInput':'#pipUrl')||$('#searchInput')).focus();return value;};storageFor(domain);refreshRecoveredLanguage();const record=storeStatus[domain];if(record.pending){const pending=record.pending;if(pending.version===record.version&&(!pending.options.valid||pending.options.valid()))return finish(commitDomain(domain,pending.items,pending.options));record.pending=null;record.state='error';record.key='pendingChanged';renderCommonUi();return false;}if(migrationPending){localStore=storageFor('persistent');sessionStore=storageFor('session');let persistent,session;try{persistent=parseItems(localStore.getItem(KEYS.persistent));}catch{storeStatus.persistent.blocked=true;storeStatus.persistent.state='error';storeStatus.persistent.key='storeReadFailed';renderCommonUi();return false;}try{session=parseItems(sessionStore.getItem(KEYS.session));}catch{storeStatus.session.blocked=true;storeStatus.session.state='error';storeStatus.session.key='storeReadFailed';renderCommonUi();return false;}persistentItems=persistent;sessionItems=session;for(const name of ['persistent','session']){storeStatus[name].blocked=false;storeStatus[name].key='';storeStatus[name].state='saved';}const migrated=migrateLegacySessions();render();syncPip();return finish(migrated);}try{const storage=storageFor(domain);if(!storage)throw Error('Storage unavailable');const raw=storage.getItem(KEYS[domain]),items=parseItems(raw);setItems(domain,items);record.blocked=false;record.key='';record.state=raw===null?'dirty':'saved';record.at=null;record.version++;listGeneration++;if(persistentItems.some(item=>item.expiresAt==='session'))migrateLegacySessions();render();syncPip();return finish(true);}catch{record.blocked=true;record.state='error';record.key='storeReadFailed';renderCommonUi();return false;}}
+      function domainLabel(domain){return t(domain==='session'?'sessionDomain':'persistentDomain');}
+      function domainText(domain){const record=storeStatus[domain];if(record.key)return domainLabel(domain)+': '+t(record.key);return '';}
+      function renderCommonUi(){for(const domain of ['persistent','session']){const record=storeStatus[domain],el=$('#'+domain+'Status');BrowserKittyUI.setSaveStatus(el,{mode:'autosave',state:record.state,language,time:record.at===null?'':new Date(record.at).toLocaleTimeString(language,{hour:'2-digit',minute:'2-digit'})});el.textContent=domainLabel(domain)+': '+(record.key?t(record.key):el.textContent);$('#retry'+(domain==='session'?'Session':'Persistent')).hidden=record.state!=='error'&&!migrationPending;$('#retry'+(domain==='session'?'Session':'Persistent')).disabled=mutationLock;}$('#migrationStatus').textContent=migrationPending?t('migrationPending'):'';$('#languageStatus').textContent=languageFailure?BrowserKittyUI.text('languageSessionOnly',language):'';$('#pasteStatus').textContent=pasteStatus?t(pasteStatus):'';$('#copyStatus').textContent=[...new Set([...copyFeedback.values()].map(record=>t(record.key)))].join(' · ');$('#exportStatus').textContent=exportStatus==='started'?BrowserKittyUI.text('downloadStarted',language)+': '+exportSavedName:exportStatus?t(exportStatus):'';$('#floatingStatus').textContent=floatingError?t('floatingFailed'):'';for(const id of ['addButton','clearDoneButton','clearExpiredButton','clearAllButton'])BrowserKittyUI.setButtonState($('#'+id),mutationLock||migrationPending?'unavailable':'ready');BrowserKittyUI.setButtonState($('#pasteButton'),pasteBusy?'busy':mutationLock?'unavailable':'ready');BrowserKittyUI.setButtonState($('#editSaveButton'),mutationLock||migrationPending?'unavailable':'ready');if(editErrorKey)$('#editError').textContent=t(editErrorKey);refreshConfirmation();refreshCopyButtons();refreshToast();renderPipStatus();}
+      function setupConfirmation(doc){const dialog=doc.querySelector('#confirmDialog');if(!dialog||dialog.__wired)return;dialog.__wired=true;doc.querySelector('#confirmCancelButton').addEventListener('click',()=>finishConfirmation(false));doc.querySelector('#confirmOkButton').addEventListener('click',()=>finishConfirmation(true));dialog.addEventListener('cancel',event=>{event.preventDefault();finishConfirmation(false);});dialog.addEventListener('close',()=>{if(confirmation?.dialog===dialog)finishConfirmation(false);});dialog.addEventListener('click',event=>{if(event.target===dialog)finishConfirmation(false);});}
+      function ensureConfirmation(doc){if(!doc.querySelector('#confirmDialog')){const dialog=doc.createElement('dialog');dialog.setAttribute('id','confirmDialog');dialog.setAttribute('aria-labelledby','confirmTitle');dialog.innerHTML='<div class="dialog-header"><h2 id="confirmTitle"></h2></div><div class="dialog-body"><p id="confirmMessage"></p><div class="edit-actions"><button id="confirmCancelButton" type="button" data-bk-button data-bk-variant="secondary"></button><button id="confirmOkButton" type="button" data-bk-button data-bk-variant="danger"></button></div></div>';doc.body.append(dialog);}setupConfirmation(doc);return doc.querySelector('#confirmDialog');}
+      function refreshConfirmation(){if(!confirmation)return;const {doc,copy}=confirmation;doc.querySelector('#confirmTitle').textContent=t('removeTitle');doc.querySelector('#confirmMessage').textContent=copy();doc.querySelector('#confirmCancelButton').textContent=t('cancel');doc.querySelector('#confirmOkButton').textContent=t('remove');}
+      function finishConfirmation(accepted){if(!confirmation)return;const request=confirmation,active=request.doc.activeElement,owned=request.dialog.contains(active)||active===request.doc.body||active===request.opener;confirmation=null;if(request.dialog.open)request.dialog.close();request.resolve({accepted,owned});}
+      function askRemoval(doc,opener,copy){if(confirmation)return Promise.resolve({accepted:false,owned:false});const dialog=ensureConfirmation(doc);return new Promise(resolve=>{confirmation={doc,dialog,opener,copy,resolve};refreshConfirmation();dialog.showModal();requestAnimationFrame(()=>{if(confirmation?.resolve===resolve)doc.querySelector('#confirmCancelButton').focus();});});}
+      async function requestRemoval(kind,id=null,doc=document,opener=doc.activeElement){if(mutationLock||migrationPending)return false;const source=allItems(),targets=kind==='one'?source.filter(item=>item.id===id):kind==='done'?source.filter(item=>item.done):kind==='expired'?source.filter(isExpired):source;const unreadable=kind==='all'&&Object.values(storeStatus).some(record=>record.blocked);if(!targets.length&&!unreadable){showToast(t(kind==='done'?'noDone':kind==='expired'?'noExpired':'clearedAll'));return false;}const ids=new Set(targets.map(item=>item.id)),generation=listGeneration;mutationLock=true;renderCommonUi();let removed=false,accepted=false,owned=false;try{const answer=await askRemoval(doc,opener,()=>t(kind==='one'?'confirmOne':unreadable?'confirmUnreadable':kind==='done'?'confirmDone':kind==='expired'?'confirmExpired':'confirmAll',{count:targets.length})+' '+t('removeScope')+(kind==='one'?'\n\n'+targets[0].url:''));accepted=answer.accepted;owned=answer.owned;if(!accepted||generation!==listGeneration)return false;let complete=true;for(const domain of ['persistent','session']){const before=itemsFor(domain),candidate=before.filter(item=>!ids.has(item.id));if(kind!=='all'&&candidate.length===before.length)continue;const version=storeStatus[domain].version,ok=commitDomain(domain,candidate,{remove:kind==='all',authorized:kind==='all',allowLocked:true,valid:()=>storeStatus[domain].version===version});removed=removed||ok;complete=complete&&ok;}showToast(t(complete?(kind==='done'?'clearedDone':kind==='expired'?'clearedExpired':kind==='all'?'clearedAll':'removed'):'removePartial'),!complete);return complete;}finally{mutationLock=false;renderCommonUi();if(owned){const survives=opener?.isConnected&&!opener.disabled;if(!removed&&survives)opener.focus();else(doc.querySelector(doc===document?'#searchInput':'#pipUrl')||$('#searchInput')).focus();}}}
+      function refreshItemLanguage(doc){for(const card of doc.querySelectorAll('[data-id]')){const item=findItem(card.dataset.id);if(!item)continue;for(const [action,key]of [['copy-path','copyPath'],['copy-folder','copyFolder'],['copy-name','copyName'],['edit','edit'],['done',item.done?'restore':'done'],['remove','remove']]){const button=card.querySelector('[data-action="'+action+'"]');if(button){button.setAttribute('aria-label',t(key));button.title=t(key);if(doc===document||action.startsWith('copy-'))button.textContent=t(key);}}const open=card.querySelector('[data-item-open]');if(open)open.textContent=t('open');const expiry=card.querySelector('[data-item-expiry]');if(expiry)expiry.textContent=expiryLabel(item);const warning=card.querySelector('[data-i18n="expired"]');if(warning)warning.textContent=t('expired');const kind=card.querySelector('[data-item-kind]');if(kind)kind.title=t((item.kind||classify(item.url))==='web'?'webKind':'localKind');}}
+      function refreshCopyButtons(){for(const doc of [document,...(pipWindow&&!pipWindow.closed?[pipWindow.document]:[])])for(const card of doc.querySelectorAll('[data-id]')){const item=findItem(card.dataset.id);if(!item)continue;for(const action of ['copy-path','copy-folder','copy-name','edit','done','remove']){const button=card.querySelector('[data-action="'+action+'"]');if(button)BrowserKittyUI.setButtonState(button,copyPending.has(item.id+':'+action)?'busy':mutationLock||migrationPending?'unavailable':'ready');}}}
+      function refreshToast(){if(!toastRecord)return;const text=t(toastRecord.key,toastRecord.vars);if($('#toast').classList.contains('show'))$('#toast').textContent=text;const pipToast=pipWindow?.document.querySelector('#pipToast');if(pipToast&&pipToast.style.display!=='none')pipToast.textContent=text;}
+      function renderPipStatus(){if(!pipWindow||pipWindow.closed)return;const doc=pipWindow.document,status=doc.querySelector('#pipPersistenceStatus');if(!status)return;status.textContent=[domainText('persistent'),domainText('session'),migrationPending?t('migrationPending'):'',languageFailure?BrowserKittyUI.text('languageSessionOnly',language):''].filter(Boolean).join(' · ');const actions=doc.querySelector('#pipActionStatus');if(actions)actions.textContent=$('#copyStatus').textContent;for(const domain of ['persistent','session']){const button=doc.querySelector(domain==='session'?'#pipRetrySession':'#pipRetryPersistent');if(button){button.textContent=t(domain==='session'?'retrySession':'retryPersistent');button.hidden=storeStatus[domain].state!=='error'&&!migrationPending;button.disabled=mutationLock;}}const add=doc.querySelector('#pipAdd');if(add)BrowserKittyUI.setButtonState(add,mutationLock||migrationPending?'unavailable':'ready');}
+      function exportName(scope){const raw=exportNames[scope]||exportFilename(scope);const name=String(raw).trim().replace(/[<>:"/\\|?*\u0000-\u001F]/g,'-').replace(/[. ]+$/g,'').trim();return name?(name.toLowerCase().endsWith('.md')?name:name+'.md'):exportFilename(scope);}
+      function hasStoredLanguage(){let fromUrl='';try{fromUrl=new URL(window.location?.href).searchParams.get('lang')||'';}catch{}return ['ja','en'].includes(fromUrl)||['ja','en'].includes(readStorage(localStore,BrowserKittyUI.languageKey))||['ja','en'].includes(readStorage(localStore,KEYS.language));}
+      function refreshRecoveredLanguage(){if(languageExplicit||!languageNeedsRecovery)return;const store=storageFor('persistent'),common=readStorage(store,BrowserKittyUI.languageKey),legacy=readStorage(store,KEYS.language);if(!['ja','en'].includes(common)&&!['ja','en'].includes(legacy))return;const cached={getItem:key=>key===BrowserKittyUI.languageKey?common:key===KEYS.language?legacy:null};const recovered=BrowserKittyUI.resolveLanguage({storage:cached,legacyKeys:[KEYS.language],languages:navigator.languages||[navigator.language],url:window.location?.href});languageNeedsRecovery=false;if(recovered!==language){language=recovered;applyLanguage();}}
       function makeId() {
         if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
         return `tl-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -799,16 +979,8 @@
       function findItem(id) {
         return sessionItems.find(item => item.id === id) || persistentItems.find(item => item.id === id) || null;
       }
-      function removeItem(id) {
-        sessionItems = sessionItems.filter(item => item.id !== id);
-        persistentItems = persistentItems.filter(item => item.id !== id);
-      }
-      function persistAndRender() {
-        writeJson(localStore, KEYS.persistent, persistentItems);
-        writeJson(sessionStore, KEYS.session, sessionItems);
-        render();
-        syncPip();
-      }
+      function removeItem(id){return requestRemoval('one',id);}
+      function persistAndRender(){render();syncPip();}
       function canonical(raw) {
         const value = String(raw || '').trim();
         if (classify(value) === 'web') {
@@ -816,31 +988,10 @@
         }
         return value;
       }
-      function addItem(raw, note, retention, pastedTitle = '') {
-        const url = String(raw || '').trim();
-        const kind = classify(url);
-        if (!isValidReference(url, kind)) { showToast(t('hintInvalid'), true); return false; }
-        const key = canonical(url);
-        if (activeItems().some(item => canonical(item.url) === key)) { showToast(t('duplicate')); return false; }
-        const item = {
-          id: makeId(),
-          url,
-          kind,
-          title: kind === 'web' && pastedTitle.trim() ? pastedTitle.trim() : '',
-          note: String(note || '').trim(),
-          expiresAt: expiry(retention),
-          done: false,
-          createdAt: Date.now()
-        };
-        if (retention === 'session') sessionItems.unshift(item); else persistentItems.unshift(item);
-        filter = 'active';
-        persistAndRender();
-        showToast(t('added'));
-        return true;
-      }
+      function addItem(raw,note,retention,pastedTitle='',context={}){if(mutationLock||migrationPending)return false;const url=String(raw||'').trim(),kind=classify(url);if(!isValidReference(url,kind)){showToast(t('hintInvalid'),true);return false;}const key=canonical(url);if(activeItems().some(item=>canonical(item.url)===key)){showToast(t('duplicate'));return false;}const item={id:makeId(),url,kind,title:kind==='web'&&pastedTitle.trim()?pastedTitle.trim():'',note:String(note||'').trim(),expiresAt:expiry(retention),done:false,createdAt:Date.now()},domain=retention==='session'?'session':'persistent',generation=listGeneration;return commitDomain(domain,[item,...itemsFor(domain)],{valid:()=>generation===listGeneration&&(!context.valid||context.valid()),before:()=>{filter='active';},after:()=>{context.after?.();showToast(t('added'));}});}
       function openEdit(id) {
         const item = findItem(id);
-        if (!item || $('#editDialog').open) return;
+        if (!item || mutationLock || migrationPending || $('#editDialog').open) return;editRevision++;editErrorKey='';
         editingId = id;
         $('#editUrlInput').value = item.url;
         $('#editNoteInput').value = item.note || '';
@@ -851,49 +1002,20 @@
       }
       function closeEdit() {
         const id = editingId;
-        editingId = null;
+        editingId = null;editRevision++;editErrorKey='';for(const record of Object.values(storeStatus))if(record.pending?.options.editId===id)record.pending=null;
         $('#editDialog').close();
         // Rendering replaces the original button; a changed search match may hide it entirely.
         const card = Array.from(document.querySelectorAll('#list [data-id]')).find(node => node.dataset.id === id);
         (card?.querySelector('[data-action="edit"]') || $('#searchInput')).focus();
       }
       function editError(key, invalid = false) {
-        $('#editError').textContent = t(key);
+        editErrorKey=key;$('#editError').textContent = t(key);
         if (invalid) {
           $('#editUrlInput').setAttribute('aria-invalid', 'true');
           $('#editUrlInput').focus();
         }
       }
-      function saveEdit() {
-        // Read the live item so PiP completion/removal while the dialog is open cannot be undone.
-        const item = findItem(editingId);
-        if (!item) { editError('editMissing'); return; }
-        const url = $('#editUrlInput').value.trim();
-        const note = $('#editNoteInput').value.trim();
-        const kind = classify(url);
-        if (!isValidReference(url, kind)) { editError('hintInvalid', true); return; }
-        const key = canonical(url);
-        if (canonical(item.url) !== key && activeItems().some(other => other.id !== item.id && canonical(other.url) === key)) {
-          editError('duplicate', true);
-          return;
-        }
-        const patch = { url, note, kind, title: canonical(item.url) === key ? item.title : '' };
-        if (Object.entries(patch).some(([key, value]) => item[key] !== value)) {
-          const session = sessionItems.includes(item);
-          const items = session ? sessionItems : persistentItems;
-          const updated = items.map(other => other === item ? { ...other, ...patch } : other);
-          // Only write the owning store, and leave the live item intact if persistence fails.
-          if (!writeJson(session ? sessionStore : localStore, session ? KEYS.session : KEYS.persistent, updated)) {
-            editError('editStorageFailed');
-            return;
-          }
-          Object.assign(item, patch);
-          render();
-          syncPip();
-        }
-        closeEdit();
-        showToast(t('saved'));
-      }
+      function saveEdit(){if(mutationLock||migrationPending)return;const item=findItem(editingId);if(!item){editError('editMissing');return;}const url=$('#editUrlInput').value.trim(),note=$('#editNoteInput').value.trim(),kind=classify(url);if(!isValidReference(url,kind)){editError('hintInvalid',true);return;}const key=canonical(url);if(canonical(item.url)!==key&&activeItems().some(other=>other.id!==item.id&&canonical(other.url)===key)){editError('duplicate',true);return;}const patch={url,note,kind,title:canonical(item.url)===key?item.title:''};if(!Object.entries(patch).some(([name,value])=>item[name]!==value)){closeEdit();showToast(t('saved'));return;}const domain=sessionItems.includes(item)?'session':'persistent',generation=listGeneration,revision=editRevision,id=editingId,candidate=itemsFor(domain).map(other=>other===item?{...other,...patch}:other),ok=commitDomain(domain,candidate,{editId:id,valid:()=>editingId===id&&editRevision===revision&&listGeneration===generation&&$('#editUrlInput').value.trim()===url&&$('#editNoteInput').value.trim()===note,after:()=>{editErrorKey='';closeEdit();showToast(t('saved'));}});if(!ok)editError('editStorageFailed');}
       function getVisibleItems() {
         let items = allItems().sort((a, b) => Number(a.done) - Number(b.done) || (b.createdAt || 0) - (a.createdAt || 0));
         if (filter === 'active') items = items.filter(item => !item.done && !isExpired(item));
@@ -914,24 +1036,24 @@
         const subtitle = web ? (() => { try { return new URL(item.url).hostname.replace(/^www\./i, ''); } catch { return item.url; } })() : path;
         return `<article class="item-card${item.done ? ' done' : ''}${expired ? ' expired' : ''}" data-id="${esc(item.id)}">
           <div class="item-top">
-            <div class="item-kind" title="${esc(web ? t('webKind') : t('localKind'))}">${icon(web ? 'web' : 'local')}</div>
+            <div class="item-kind" data-item-kind title="${esc(web ? t('webKind') : t('localKind'))}">${icon(web ? 'web' : 'local')}</div>
             <div class="item-main">
               ${web ? `<a class="item-title" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(title)}</a>` : `<span class="item-title">${esc(title)}</span>`}
               <div class="item-sub">${esc(subtitle)}</div>
               ${item.note ? `<div class="item-note">${esc(item.note)}</div>` : ''}
-              <div class="item-meta"><span>${esc(expiryLabel(item))}</span>${expired ? `<span class="meta-warning">${esc(t('expired'))}</span>` : ''}</div>
+              <div class="item-meta"><span data-item-expiry>${esc(expiryLabel(item))}</span>${expired ? `<span class="meta-warning" data-i18n="expired">${esc(t('expired'))}</span>` : ''}</div>
               <div class="item-actions">
-                ${web ? `<a class="button" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(t('open'))}</a>` : `<button class="button" type="button" data-action="copy-path">${esc(t('copyPath'))}</button><button class="button" type="button" data-action="copy-folder">${esc(t('copyFolder'))}</button><button class="button" type="button" data-action="copy-name">${esc(t('copyName'))}</button>`}
-                <button class="button" type="button" data-action="edit">${esc(t('edit'))}</button>
-                <button class="button" type="button" data-action="done">${esc(item.done ? t('restore') : t('done'))}</button>
-                <button class="button danger" type="button" data-action="remove">${esc(t('remove'))}</button>
+                ${web ? `<a class="button" data-item-open href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">${esc(t('open'))}</a>` : `<button class="button" type="button" data-bk-button data-bk-variant="secondary" data-action="copy-path">${esc(t('copyPath'))}</button><button class="button" type="button" data-bk-button data-bk-variant="secondary" data-action="copy-folder">${esc(t('copyFolder'))}</button><button class="button" type="button" data-bk-button data-bk-variant="secondary" data-action="copy-name">${esc(t('copyName'))}</button>`}
+                <button class="button" type="button" data-bk-button data-bk-variant="secondary" data-action="edit">${esc(t('edit'))}</button>
+                <button class="button" type="button" data-bk-button data-bk-variant="secondary" data-action="done">${esc(item.done ? t('restore') : t('done'))}</button>
+                <button class="button danger" type="button" data-bk-button data-bk-variant="danger" data-action="remove">${esc(t('remove'))}</button>
               </div>
             </div>
           </div>
         </article>`;
       }
       function render() {
-        const items = getVisibleItems();
+        rendered=true;const items = getVisibleItems();
         $('#activeCount').textContent = String(activeItems().length);
         $('#allCount').textContent = String(allItems().length);
         document.querySelectorAll('[data-filter]').forEach(button => button.classList.toggle('active', button.dataset.filter === filter));
@@ -942,7 +1064,7 @@
           $('#list').innerHTML = items.map(itemCard).join('');
         }
         updatePipButton();
-        updateExportPreview();
+        updateExportPreview();renderCommonUi();
       }
       function updateInputHint() {
         const value = $('#urlInput').value.trim();
@@ -956,7 +1078,7 @@
       }
       function showToast(message, error = false) {
         const toast = $('#toast');
-        toast.textContent = message;
+        const key=Object.keys(translations[language]).find(name=>t(name)===message);toastRecord=key?{key,vars:{}}:null;toast.textContent = message;
         toast.classList.toggle('error', error);
         toast.classList.add('show');
         clearTimeout(toastTimer);
@@ -970,90 +1092,17 @@
           }
         }
       }
-      async function copyText(text, successMessage) {
-        try {
-          if (navigator.clipboard?.writeText) await navigator.clipboard.writeText(text);
-          else throw new Error('clipboard unavailable');
-          showToast(successMessage || t('copied'));
-          return;
-        } catch {
-          const textarea = document.createElement('textarea');
-          textarea.value = text;
-          textarea.style.cssText = 'position:fixed;left:-9999px;opacity:0';
-          document.body.append(textarea);
-          textarea.select();
-          let ok = false;
-          try { ok = document.execCommand('copy'); } catch { ok = false; }
-          textarea.remove();
-          showToast(ok ? (successMessage || t('copied')) : t('copyFailed'), !ok);
-        }
-      }
-      function bindListEvents(doc) {
-        if (doc.__temporaryLinksBound) return;
-        doc.__temporaryLinksBound = true;
-        doc.addEventListener('click', event => {
-          const button = event.target.closest('[data-action]');
-          const card = button?.closest('[data-id]');
-          if (!button || !card) return;
-          const item = findItem(card.dataset.id);
-          if (!item) return;
-          const action = button.dataset.action;
-          if (action === 'edit' && doc === document) { openEdit(item.id); return; }
-          if (action === 'done') { item.done = !item.done; persistAndRender(); return; }
-          if (action === 'remove') { removeItem(item.id); persistAndRender(); return; }
-          if (action === 'copy-path') { copyText(localPath(item.url), t('copiedPath')); return; }
-          if (action === 'copy-folder') { copyText(parentPath(item.url), t('copiedFolder')); return; }
-          if (action === 'copy-name') { copyText(titleFor(item), t('copiedName')); }
-        });
-      }
-      function applyLanguage() {
-        document.documentElement.lang = language;
-        document.querySelectorAll('[data-i18n]').forEach(node => { node.textContent = t(node.dataset.i18n); });
-        document.querySelectorAll('[data-i18n-placeholder]').forEach(node => { node.placeholder = t(node.dataset.i18nPlaceholder); });
-        document.querySelectorAll('[data-i18n-title]').forEach(node => { node.title = t(node.dataset.i18nTitle); });
-        document.querySelectorAll('[data-i18n-aria-label]').forEach(node => { node.setAttribute('aria-label', t(node.dataset.i18nAriaLabel)); });
-        $('#languageButton').textContent = language === 'ja' ? 'EN' : 'JA';
-        updatePipSupport();
-        updateInputHint();
-        render();
-        syncPip();
-      }
-      function toggleLanguage() {
-        language = language === 'ja' ? 'en' : 'ja';
-        writeStorage(localStore, KEYS.language, language);
-        applyLanguage();
-      }
-      function updatePipSupport() {
-        const supported = window.isSecureContext && 'documentPictureInPicture' in window;
-        const chip = $('#pipSupport');
-        chip.classList.toggle('ready', supported);
-        $('#pipSupportText').textContent = t(supported ? 'pipReady' : 'pipUnavailable');
-        $('#pipButton').disabled = !supported;
-      }
+      async function copyText(text,successMessage,options={}){const key=options.key||'direct:'+text,birth=floatingGeneration,sourceCurrent=options.current||(()=>true),current=()=>birth===floatingGeneration&&sourceCurrent()&&(doc===document||pipWindow?.document===doc&&!pipWindow.closed),doc=options.doc||document,id=options.id||'',successKey=Object.keys(translations[language]).find(name=>t(name)===successMessage)||'copied';if(copyPending.has(key)||mutationLock||!current())return false;copyPending.set(key,{});renderCommonUi();try{try{if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');await navigator.clipboard.writeText(text);}catch{if(mutationLock||!current())return false;const previous=doc.activeElement;let textarea=null;try{textarea=doc.createElement('textarea');textarea.value=text;textarea.style.cssText='position:fixed;left:-9999px;opacity:0';doc.body.append(textarea);textarea.focus();textarea.select();if(!doc.execCommand('copy'))throw Error('Copy failed');}finally{const owned=textarea&&doc.activeElement===textarea;textarea?.remove();if(owned&&previous?.isConnected)previous.focus();}}if(current()){copyFeedback.set(key,{id,key:successKey});showToast(t(successKey));return true;}return false;}catch{if(current()){copyFeedback.set(key,{id,key:'copyFailed'});showToast(t('copyFailed'),true);}return false;}finally{copyPending.delete(key);renderCommonUi();}}
+      function bindListEvents(doc){if(doc.__temporaryLinksBound)return;doc.__temporaryLinksBound=true;doc.addEventListener('click',event=>{const button=event.target.closest('[data-action]'),card=button?.closest('[data-id]');if(!button||!card)return;const item=findItem(card.dataset.id);if(!item)return;const action=button.dataset.action;if(action==='edit'&&doc===document){openEdit(item.id);return;}if(action==='done'){if(mutationLock||migrationPending)return false;const domain=sessionItems.includes(item)?'session':'persistent';return commitDomain(domain,itemsFor(domain).map(other=>other===item?{...other,done:!other.done}:other));}if(action==='remove')return requestRemoval('one',item.id,doc,button);if(action.startsWith('copy-')){const text=action==='copy-path'?localPath(item.url):action==='copy-folder'?parentPath(item.url):titleFor(item),message=action==='copy-path'?'copiedPath':action==='copy-folder'?'copiedFolder':'copiedName',url=item.url;return copyText(text,t(message),{id:item.id,key:item.id+':'+action,doc,current:()=>findItem(item.id)?.url===url});}});}
+      function applyLanguage(){document.documentElement.lang=language;document.title='Temporary Links';document.querySelectorAll('[data-i18n]').forEach(node=>{node.textContent=t(node.dataset.i18n);});document.querySelectorAll('[data-i18n-placeholder]').forEach(node=>{node.placeholder=t(node.dataset.i18nPlaceholder);});document.querySelectorAll('[data-i18n-title]').forEach(node=>{node.title=t(node.dataset.i18nTitle);});document.querySelectorAll('[data-i18n-aria-label]').forEach(node=>node.setAttribute('aria-label',t(node.dataset.i18nAriaLabel)));$('#languageButton').textContent=language==='ja'?'EN':'JA';updatePipSupport();updateInputHint();if(!rendered)render();else{refreshItemLanguage(document);updateExportPreview();renderCommonUi();}syncPip({languageOnly:true});}
+      function toggleLanguage(){languageExplicit=true;localStore=storageFor('persistent');const choice=BrowserKittyUI.chooseLanguage(language==='ja'?'en':'ja',{storage:localStore,url:window.location?.href,history:window.history});language=choice.language;languageFailure=!choice.persisted;applyLanguage();}
+      function updatePipSupport(){const supported=window.isSecureContext&&typeof window.documentPictureInPicture?.requestWindow==='function';$('#pipSupport').classList.toggle('ready',supported);$('#pipSupportText').textContent=t(supported?'pipReady':'pipUnavailable');BrowserKittyUI.setButtonState($('#pipButton'),floatingBusy?'busy':supported?'ready':'unavailable');}
       function updatePipButton() {
         const open = pipWindow && !pipWindow.closed;
         $('#pipButton').textContent = t(open ? 'floatingOpen' : 'openFloating');
       }
-      function mainAdd() {
-        const input = $('#urlInput');
-        const added = addItem(input.value, $('#noteInput').value, $('#retentionSelect').value, input.dataset.pastedTitle || '');
-        if (!added) return;
-        input.value = '';
-        delete input.dataset.pastedTitle;
-        $('#noteInput').value = '';
-        updateInputHint();
-        input.focus();
-      }
-      async function pasteFromClipboard() {
-        try {
-          const text = (await navigator.clipboard.readText()).trim();
-          $('#urlInput').value = text;
-          delete $('#urlInput').dataset.pastedTitle;
-          updateInputHint();
-          $('#urlInput').focus();
-          showToast(t('pasted'));
-        } catch { showToast(t('pasteFailed'), true); }
-      }
+      function mainAdd(){const input=$('#urlInput'),note=$('#noteInput'),retention=$('#retentionSelect'),revision=++addRevision,raw=input.value,text=note.value,mode=retention.value,title=input.dataset.pastedTitle||'';return addItem(raw,text,mode,title,{valid:()=>addRevision===revision&&input.value===raw&&note.value===text&&retention.value===mode,after:()=>{input.value='';delete input.dataset.pastedTitle;note.value='';updateInputHint();input.focus();}});}
+      async function pasteFromClipboard(){if(pasteBusy||mutationLock)return;const revision=addRevision,value=$('#urlInput').value;pasteBusy=true;renderCommonUi();try{const text=(await navigator.clipboard.readText()).trim();if(mutationLock||revision!==addRevision||$('#urlInput').value!==value)return;$('#urlInput').value=text;delete $('#urlInput').dataset.pastedTitle;addRevision++;updateInputHint();$('#urlInput').focus();pasteStatus='';showToast(t('pasted'));}catch{pasteStatus='pasteFailed';showToast(t('pasteFailed'),true);}finally{pasteBusy=false;renderCommonUi();}}
       function handlePaste(event) {
         const clipboard = event.clipboardData;
         const html = clipboard?.getData('text/html');
@@ -1062,7 +1111,9 @@
           const anchor = new DOMParser().parseFromString(html, 'text/html').querySelector('a[href]');
           if (anchor && classify(anchor.href) === 'web') detectedTitle = anchor.textContent.trim();
         }
+        const expected=String(clipboard?.getData('text/plain')||'').trim();
         window.setTimeout(() => {
+          if(mutationLock||!expected||canonical($('#urlInput').value)!==canonical(expected))return;pasteStatus='';renderCommonUi();
           if (detectedTitle) $('#urlInput').dataset.pastedTitle = detectedTitle;
           updateInputHint();
           if (detectedTitle) showToast(t('titleDetected'));
@@ -1088,126 +1139,48 @@
         const empty = exportScope === 'visible' && count === 0;
         $('#exportScope').value = exportScope;
         $('#exportSummary').textContent = t(count === 1 ? 'exportCountOne' : 'exportCount', { count: new Intl.NumberFormat(language).format(count) });
-        $('#exportFilename').textContent = exportFilename(exportScope);
+        const filename=exportName(exportScope);$('#exportFilename').textContent=filename;if($('#exportNameInput').value!==filename)$('#exportNameInput').value=filename;
         $('#exportEmptyHint').textContent = empty ? t('exportVisibleEmpty') : '';
         $('#exportEmptyHint').hidden = !empty;
-        $('#exportButton').disabled = empty;
+        BrowserKittyUI.setButtonState($('#exportButton'),exportBusy?'busy':empty?'unavailable':'ready');
       }
-      function exportMarkdown() {
-        // Resolve the scope and live list once at the click; never fall back to all for an empty view.
-        const scope = exportScope;
-        const items = exportItems(scope);
-        updateExportPreview();
-        if (scope === 'visible' && !items.length) return;
-        let url;
-        let anchor;
-        try {
-          const blob = new Blob([markdownFor(items)], { type: 'text/markdown;charset=utf-8' });
-          url = URL.createObjectURL(blob);
-          anchor = document.createElement('a');
-          anchor.href = url;
-          anchor.download = exportFilename(scope);
-          document.body.append(anchor);
-          anchor.click();
-          showToast(t('exported'));
-        } catch {
-          showToast(t('exportFailed'), true);
-        } finally {
-          anchor?.remove();
-          if (url) window.setTimeout(() => URL.revokeObjectURL(url), 0);
-        }
-      }
-      function clearDone() {
-        const count = allItems().filter(item => item.done).length;
-        if (!count) { showToast(t('noDone')); return; }
-        if (!confirm(t('confirmDone', { count }))) return;
-        sessionItems = sessionItems.filter(item => !item.done);
-        persistentItems = persistentItems.filter(item => !item.done);
-        persistAndRender();
-        showToast(t('clearedDone'));
-      }
-      function clearExpired() {
-        const count = allItems().filter(isExpired).length;
-        if (!count) { showToast(t('noExpired')); return; }
-        if (!confirm(t('confirmExpired', { count }))) return;
-        sessionItems = sessionItems.filter(item => !isExpired(item));
-        persistentItems = persistentItems.filter(item => !isExpired(item));
-        persistAndRender();
-        showToast(t('clearedExpired'));
-      }
-      function clearAll() {
-        if (!allItems().length) { showToast(t('clearedAll')); return; }
-        if (!confirm(t('confirmAll'))) return;
-        sessionItems = [];
-        persistentItems = [];
-        try { localStore?.removeItem(KEYS.persistent); } catch { /* no-op */ }
-        try { sessionStore?.removeItem(KEYS.session); } catch { /* no-op */ }
-        render();
-        syncPip();
-        showToast(t('clearedAll'));
-      }
+      function exportMarkdown(){if(exportBusy)return;const scope=exportScope,items=exportItems(scope);updateExportPreview();if(scope==='visible'&&!items.length)return;const filename=exportName(scope),content=markdownFor(items);exportNames[scope]=filename;exportBusy=true;updateExportPreview();let url,anchor,handedOff=false;try{const blob=new Blob([content],{type:'text/markdown;charset=utf-8'});url=URL.createObjectURL(blob);anchor=document.createElement('a');anchor.href=url;anchor.download=filename;document.body.append(anchor);anchor.click();handedOff=true;exportStatus='started';exportSavedName=filename;showToast(t('exported'));}catch{exportStatus='exportFailed';showToast(t('exportFailed'),true);}finally{anchor?.remove();if(url){if(handedOff)window.setTimeout(()=>URL.revokeObjectURL(url),0);else URL.revokeObjectURL(url);}exportBusy=false;updateExportPreview();renderCommonUi();}}
+      function clearDone(){return requestRemoval('done',null,document,$('#clearDoneButton'));}
+      function clearExpired(){return requestRemoval('expired',null,document,$('#clearExpiredButton'));}
+      function clearAll(){return requestRemoval('all',null,document,$('#clearAllButton'));}
       function pipItemCard(item) {
         const web = (item.kind || classify(item.url)) === 'web';
         return `<div class="pip-item" data-id="${esc(item.id)}">
           ${web ? `<a class="pip-item-title" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" title="${esc(item.url)}">${esc(titleFor(item))}</a>` : `<span class="pip-item-title" title="${esc(localPath(item.url))}">${esc(titleFor(item))}</span>`}
-          ${web ? '' : `<button class="button" type="button" data-action="copy-path">${esc(t('copyPath'))}</button>`}
-          <button class="button" type="button" data-action="done">✓</button>
-          <button class="button danger" type="button" data-action="remove">×</button>
+          ${web ? '' : `<button class="button" type="button" data-bk-button data-bk-variant="secondary" data-action="copy-path">${esc(t('copyPath'))}</button>`}
+          <button class="button" type="button" data-bk-button data-bk-variant="secondary" data-action="done">✓</button>
+          <button class="button danger" type="button" data-bk-button data-bk-variant="danger" data-action="remove">×</button>
         </div>`;
       }
-      function syncPip() {
-        if (!pipWindow || pipWindow.closed) return;
-        const doc = pipWindow.document;
-        const list = doc.querySelector('#pipList');
-        const count = doc.querySelector('#pipCount');
-        if (!list || !count) return;
-        const items = activeItems();
-        count.textContent = String(items.length);
-        list.innerHTML = items.length ? items.map(pipItemCard).join('') : `<div class="pip-empty">${esc(t('pipEmpty'))}</div>`;
-        const input = doc.querySelector('#pipUrl');
-        const add = doc.querySelector('#pipAdd');
-        if (input) input.placeholder = t('pipPlaceholder');
-        if (add) add.textContent = t('pipAdd');
-        doc.documentElement.lang = language;
-      }
-      async function openFloating() {
-        if (!(window.isSecureContext && 'documentPictureInPicture' in window)) { showToast(t('floatingNotSupported'), true); return; }
-        if (pipWindow && !pipWindow.closed) { pipWindow.focus(); return; }
-        try {
-          pipWindow = await documentPictureInPicture.requestWindow({ width: 430, height: 560 });
-          document.querySelectorAll('style').forEach(style => pipWindow.document.head.append(style.cloneNode(true)));
-          pipWindow.document.title = 'Temporary Links';
-          pipWindow.document.body.className = 'pip';
-          pipWindow.document.body.innerHTML = `<main class="pip-shell"><section class="pip-panel"><div class="pip-head"><strong>Temporary Links</strong><span class="pip-count" id="pipCount">0</span></div><div class="pip-add"><input class="field" id="pipUrl" type="text" autocomplete="off"><button class="button primary" id="pipAdd" type="button"></button></div><div class="pip-list" id="pipList"></div><div id="pipToast" style="display:none;margin-top:8px;color:var(--muted);font-size:10px"></div></section></main>`;
-          bindListEvents(pipWindow.document);
-          const pipInput = pipWindow.document.querySelector('#pipUrl');
-          const addFromPip = () => {
-            if (addItem(pipInput.value, '', 'session', '')) pipInput.value = '';
-          };
-          pipWindow.document.querySelector('#pipAdd').addEventListener('click', addFromPip);
-          pipInput.addEventListener('keydown', event => { if (isSubmitEnter(event)) { event.preventDefault(); addFromPip(); } });
-          pipWindow.addEventListener('pagehide', () => { pipWindow = null; updatePipButton(); });
-          syncPip();
-          updatePipButton();
-        } catch { showToast(t('floatingFailed'), true); }
-      }
-
+      function syncPip({languageOnly=false}={}){if(!pipWindow||pipWindow.closed)return;const doc=pipWindow.document,list=doc.querySelector('#pipList'),count=doc.querySelector('#pipCount');if(!list||!count)return;const items=activeItems();count.textContent=String(items.length);if(languageOnly)refreshItemLanguage(doc);else list.innerHTML=items.length?items.map(pipItemCard).join(''):'<div class="pip-empty">'+esc(t('pipEmpty'))+'</div>';const input=doc.querySelector('#pipUrl'),add=doc.querySelector('#pipAdd');if(input)input.placeholder=t('pipPlaceholder');if(add)add.textContent=t('pipAdd');doc.documentElement.lang=language;renderPipStatus();refreshCopyButtons();}
+      async function openFloating(){if(floatingBusy)return;if(!(window.isSecureContext&&typeof window.documentPictureInPicture?.requestWindow==='function')){showToast(t('floatingNotSupported'),true);return;}if(pipWindow&&!pipWindow.closed){pipWindow.focus();return;}const generation=floatingGeneration;floatingBusy=true;updatePipSupport();try{const opened=await documentPictureInPicture.requestWindow({width:430,height:560});if(generation!==floatingGeneration){opened.close();return;}pipWindow=opened;document.querySelectorAll('style').forEach(style=>opened.document.head.append(style.cloneNode(true)));opened.document.title='Temporary Links';opened.document.body.className='pip';opened.document.body.innerHTML='<main class="pip-shell"><section class="pip-panel"><div class="pip-head"><strong>Temporary Links</strong><span class="pip-count" id="pipCount">0</span></div><div class="pip-add"><input class="field" id="pipUrl" type="text" autocomplete="off"><button class="button primary" id="pipAdd" type="button" data-bk-button data-bk-variant="primary"></button></div><div class="pip-feedback"><p id="pipPersistenceStatus" role="status" aria-live="polite"></p><button id="pipRetryPersistent" type="button" data-bk-button data-bk-variant="secondary" hidden></button><button id="pipRetrySession" type="button" data-bk-button data-bk-variant="secondary" hidden></button><p id="pipActionStatus" role="status" aria-live="polite"></p></div><div class="pip-list" id="pipList"></div><div id="pipToast" style="display:none;margin-top:8px;color:var(--muted);font-size:10px"></div></section></main>';bindListEvents(opened.document);const input=opened.document.querySelector('#pipUrl');const add=()=>{const value=input.value;return addItem(value,'','session','',{valid:()=>pipWindow===opened&&!opened.closed&&input.value===value,after:()=>{input.value='';}});};opened.document.querySelector('#pipAdd').addEventListener('click',add);input.addEventListener('keydown',event=>{if(isSubmitEnter(event)){event.preventDefault();add();}});opened.document.querySelector('#pipRetryPersistent').addEventListener('click',()=>retryDomain('persistent',opened.document));opened.document.querySelector('#pipRetrySession').addEventListener('click',()=>retryDomain('session',opened.document));opened.addEventListener('pagehide',()=>{if(pipWindow===opened){pipWindow=null;updatePipButton();}});floatingError=false;syncPip();updatePipButton();}catch{if(generation===floatingGeneration){floatingError=true;showToast(t('floatingFailed'),true);}}finally{if(generation===floatingGeneration)floatingBusy=false;updatePipSupport();renderCommonUi();}}
+      setupConfirmation(document);
+      $('#retryPersistent').addEventListener('click',()=>retryDomain('persistent'));$('#retrySession').addEventListener('click',()=>retryDomain('session'));
+      $('#editNoteInput').addEventListener('input',()=>{editRevision++;});$('#noteInput').addEventListener('input',()=>{addRevision++;});$('#retentionSelect').addEventListener('change',()=>{addRevision++;});
       $('#editSaveButton').addEventListener('click', saveEdit);
       $('#editCancelButton').addEventListener('click', closeEdit);
       $('#editDialog').addEventListener('cancel', event => { event.preventDefault(); closeEdit(); });
       $('#editUrlInput').addEventListener('keydown', event => { if (isSubmitEnter(event)) { event.preventDefault(); saveEdit(); } });
-      $('#editUrlInput').addEventListener('input', () => { $('#editUrlInput').removeAttribute('aria-invalid'); $('#editError').textContent = ''; });
+      $('#editUrlInput').addEventListener('input', () => { editRevision++;$('#editUrlInput').removeAttribute('aria-invalid');if(['hintInvalid','duplicate'].includes(editErrorKey)){editErrorKey='';$('#editError').textContent='';} });
       $('#languageButton').addEventListener('click', toggleLanguage);
       $('#helpButton').addEventListener('click', () => $('#helpDialog').showModal());
       $('#closeHelpButton').addEventListener('click', () => $('#helpDialog').close());
       $('#helpDialog').addEventListener('click', event => { if (event.target === $('#helpDialog')) $('#helpDialog').close(); });
-      $('#urlInput').addEventListener('input', () => { delete $('#urlInput').dataset.pastedTitle; updateInputHint(); });
+      $('#urlInput').addEventListener('input', () => { addRevision++;delete $('#urlInput').dataset.pastedTitle; updateInputHint(); });
       $('#urlInput').addEventListener('paste', handlePaste);
       $('#urlInput').addEventListener('keydown', event => { if (isSubmitEnter(event)) { event.preventDefault(); mainAdd(); } });
       $('#addButton').addEventListener('click', mainAdd);
       $('#pasteButton').addEventListener('click', pasteFromClipboard);
       $('#searchInput').addEventListener('input', event => { query = event.target.value; render(); });
       $('#filterRow').addEventListener('click', event => { const button = event.target.closest('[data-filter]'); if (!button) return; filter = button.dataset.filter; render(); });
+      $('#exportNameInput').addEventListener('input',()=>{exportNames[exportScope]=$('#exportNameInput').value;$('#exportFilename').textContent=$('#exportNameInput').value;});
+      $('#exportNameInput').addEventListener('blur',()=>{exportNames[exportScope]=exportName(exportScope);updateExportPreview();});
+      window.addEventListener?.('pagehide',()=>{floatingGeneration++;floatingBusy=false;addRevision++;});
       $('#exportScope').addEventListener('change', event => { exportScope = event.target.value === 'visible' ? 'visible' : 'all'; updateExportPreview(); });
       const moreTools = $('#moreTools');
       moreTools.addEventListener('toggle', () => { if (moreTools.open) updateExportPreview(); });
