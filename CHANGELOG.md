@@ -24,6 +24,8 @@
 
 ## Unreleased
 
+- Cancel a pending floating-window removal when that window closes; release the transaction and return main focus without deleting references. Ignore obsolete Paste success/failure after manual input or page exit and preserve a newer focus/request owner.
+
 - Integrate fixed Browser Kitty UI v1 actions, per-storage save/recovery status, scoped editable Markdown filenames, Cancel-first removal and shared language priority without changing reference formats.
 - Preserve drafts and current work during native clipboard/download/floating-window failures; reject stale asynchronous results and clean up temporary native resources.
 - Make existing legacy session migration destination-first and retryable so failed writes retain the recoverable origin; document the required automatic startup migration exception.
