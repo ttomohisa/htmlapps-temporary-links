@@ -94,7 +94,7 @@
       border-radius: 999px;
       color: var(--muted);
       background: var(--surface-muted);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 650;
       vertical-align: 2px;
     }
@@ -133,13 +133,13 @@
       gap: 7px;
       flex: 0 0 auto;
       margin-top: 3px;
-      padding: 7px 10px;
-      border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
-      border-radius: 999px;
+      padding: 7px 0;
+      border: 0;
+      border-radius: 0;
       color: var(--accent);
-      background: var(--accent-soft);
+      background: transparent;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 500;
       white-space: nowrap;
     }
     .local-badge svg { width: 15px; height: 15px; display: block; }
@@ -331,7 +331,7 @@
     dialog::backdrop { background: rgba(15, 17, 14, .52); backdrop-filter: blur(4px); }
     .dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
     .dialog-header h2 { margin: 0; font-size: 17px; }
-    .dialog-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); cursor: pointer; }
+    .dialog-close { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 9px; background: transparent; cursor: pointer; }
     .dialog-close:hover { background: var(--surface-hover); }
     .dialog-close svg { width: 17px; height: 17px; }
     .dialog-body { padding: 20px 20px 28px; overflow: auto; max-height: calc(100dvh - 102px); }
@@ -519,7 +519,7 @@
     </section>
   </main>
 
-  <footer class="footer">Temporary Links · MIT License · <span data-i18n="footerText">データはこのアプリから外部送信されません</span></footer>
+  <footer class="footer">Temporary Links · MIT License · <span data-i18n="footerText">データはブラウザー内で完結</span></footer>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <dialog id="editDialog" aria-labelledby="editTitle" aria-describedby="editHelp">
@@ -544,7 +544,7 @@
     <div class="dialog-header">
       <h2 id="helpTitle" data-i18n="helpTitle">使い方と注意事項</h2>
       <button class="dialog-close" id="closeHelpButton" type="button" data-i18n-title="close" data-i18n-aria-label="close" title="閉じる" aria-label="閉じる">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12"/><path d="M18 6 6 18"/></svg>
       </button>
     </div>
     <div class="dialog-body">
@@ -600,7 +600,7 @@
           filterKicker: '表示フィルタ', filterTitle: '見たい項目に切り替える', filterBody: '使用中・完了・期限切れをここで切り替え、下の検索でさらに絞り込めます。',
           filterActive: '使用中', filterAll: 'すべて', filterDone: '完了', filterExpired: '期限切れ',
           openFloating: 'フローティング表示', floatingOpen: 'フローティング表示中', exportMarkdown: 'Markdown保存', clearDone: '完了を削除', clearExpired: '期限切れを削除', clearAll: 'すべて削除',
-          footerText: 'データはこのアプリから外部送信されません', helpTitle: '使い方と注意事項', close: '閉じる',
+          footerText: 'データはブラウザー内で完結', helpTitle: '使い方と注意事項', close: '閉じる',
           helpBasicsTitle: '基本操作', helpStep1: 'URLまたはローカルパスを入力し、必要ならメモと保持期間を指定して「追加」を押します。', helpStep2: 'Webリンクは「開く」、ローカルパスは「パスをコピー」などから利用します。', helpStep3: '使用中・すべて・完了・期限切れで絞り込み、不要になった項目は削除できます。',
 
           helpFloatingTitle: 'フローティング表示', helpFloatingBody: '対応ブラウザーのHTTPSページでは、使用中の項目を常に手前に表示する小さなウィンドウで開けます。非対応環境では通常のリスト機能をそのまま使えます。',
@@ -638,7 +638,7 @@
           activeStat: 'Active', allStat: 'All', filterLabel: 'View', moreActions: 'More', searchLabel: 'Search list', searchPlaceholder: 'Search title, URL, path, or note',
           filterActive: 'Active', filterAll: 'All', filterDone: 'Done', filterExpired: 'Expired',
           openFloating: 'Floating window', floatingOpen: 'Floating window open', exportMarkdown: 'Save Markdown', clearDone: 'Clear done', clearExpired: 'Clear expired', clearAll: 'Clear all',
-          footerText: 'This app does not send your data anywhere', helpTitle: 'How to use & notes', close: 'Close',
+          footerText: 'Your data stays in the browser', helpTitle: 'How to use & notes', close: 'Close',
           helpBasicsTitle: 'Basics', helpStep1: 'Enter a URL or local path, optionally choose a note and retention period, then press Add.', helpStep2: 'Open web links directly. For local paths, use the copy actions for the path, folder, or file name.', helpStep3: 'Filter by Active, All, Done, or Expired, and remove items when you no longer need them.',
 
           helpFloatingTitle: 'Floating window', helpFloatingBody: 'On a supported browser over HTTPS, active items can be shown in a small always-on-top window. The normal list continues to work when this capability is unavailable.',
